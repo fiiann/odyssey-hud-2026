@@ -4,6 +4,20 @@
 
 ---
 
+## ⚠️ GIT WORKFLOW RULE - READ FIRST
+
+**DO NOT PUSH TO GITHUB AUTOMATICALLY**
+
+When completing tasks:
+1. ✅ **DO**: Commit changes locally (`git commit`)
+2. ❌ **DO NOT**: Push to remote (`git push`)
+3. ✅ **DO**: Report completion with commit hash
+4. ✅ **DO**: Wait for user to push manually
+
+**Rationale**: User wants control over when changes are pushed to GitHub.
+
+---
+
 ## 🎯 TO DO (Work on these first!)
 
 ### High Priority
@@ -255,9 +269,11 @@
 4. Claude: Implements the feature
 5. Claude: Tests the implementation
 6. Claude: Updates TASKS.md, moves item to COMPLETED
-7. Claude: Commits changes
+7. Claude: Commits changes (LOCAL ONLY - NO PUSH)
 8. Claude: Reports completion with summary
 ```
+
+**IMPORTANT**: Do NOT push to GitHub. The user will push manually when ready.
 
 ### 📋 Task Template
 

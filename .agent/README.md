@@ -32,6 +32,20 @@
 
 ---
 
+## ⚠️ IMPORTANT: GIT WORKFLOW RULE
+
+**DO NOT PUSH TO GITHUB AUTOMATICALLY**
+
+When implementing features:
+1. ✅ **DO**: Make changes and commit locally (`git commit`)
+2. ❌ **DO NOT**: Push to remote (`git push`)
+3. ✅ **DO**: Report completion with commit hash
+4. ✅ **DO**: Wait for user to push manually
+
+**Rationale**: The user wants full control over when changes are pushed to GitHub. Only commit locally, never push.
+
+---
+
 ## 🗂️ Documentation Structure
 
 ```
