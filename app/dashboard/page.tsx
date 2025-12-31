@@ -266,7 +266,7 @@ export default function DashboardPage() {
                   const StatusIcon = getStatusIcon(project.status);
                   const statusInfo = PROJECT_STATUS[project.status as keyof typeof PROJECT_STATUS];
                   return (
-                    <Card key={project.projectId} className="border-white/5 bg-[#121214] hover:bg-[#18181b] transition-all group cursor-pointer" onClick={() => setSelectedProject(project)}>
+                    <Card key={project.projectId} className="border-white/5 bg-[#121214] hover:bg-[#18181b] hover:border-primary/30 transition-all group cursor-pointer" onClick={() => router.push(`/projects/${project.projectId}`)}>
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between mb-1">
                           <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-tighter bg-${statusInfo.color}-500/10 text-${statusInfo.color}-500 border-${statusInfo.color}-500/20`}>

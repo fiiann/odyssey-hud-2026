@@ -77,12 +77,17 @@ export function useProjects() {
     }
   };
 
+  const getProjectById = (projectId: string): Project | undefined => {
+    return projects.find((p) => p.projectId === projectId);
+  };
+
   return {
     projects,
     isLoading,
     createProject,
     updateProject,
     deleteProject,
+    getProjectById,
     refetch: fetchProjects,
   };
 }
