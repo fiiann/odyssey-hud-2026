@@ -24,20 +24,20 @@ export interface ProfileData {
   created_at: string;
 }
 
-export interface QuestData {
-  quest_id: string;
+export interface MissionData {
+  mission_id: string;
+  project_id: string; // Link to project
   created_at: string;
   title: string;
   description?: string;
   duration_min: number;
-  category: 'BACKEND' | 'FRONTEND' | 'MOBILE' | 'DEVOPS';
 }
 
-export interface BossData {
-  boss_id: string;
+export interface ProjectData {
+  project_id: string;
   title: string;
-  quarter: 1 | 2 | 3 | 4;
-  status: 'LOCKED' | 'ACTIVE' | 'COMPLETED' | 'FAILED';
+  description?: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'ON_HOLD' | 'ARCHIVED';
   progress: number;
   repo_url?: string;
   deploy_url?: string;
@@ -55,20 +55,20 @@ export interface Profile {
   createdAt: string;
 }
 
-export interface Quest {
-  questId: string;
+export interface Mission {
+  missionId: string;
+  projectId: string;
   createdAt: string;
   title: string;
   description?: string;
   durationMin: number;
-  category: 'BACKEND' | 'FRONTEND' | 'MOBILE' | 'DEVOPS';
 }
 
-export interface Boss {
-  bossId: string;
+export interface Project {
+  projectId: string;
   title: string;
-  quarter: 1 | 2 | 3 | 4;
-  status: 'LOCKED' | 'ACTIVE' | 'COMPLETED' | 'FAILED';
+  description?: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'ON_HOLD' | 'ARCHIVED';
   progress: number;
   repoUrl?: string;
   deployUrl?: string;
@@ -78,11 +78,9 @@ export interface Boss {
 
 export interface AppState {
   profile: Profile | null;
-  quests: Quest[];
-  bosses: Boss[];
+  missions: Mission[];
+  projects: Project[];
   isAuthenticated: boolean;
 }
 
-export type Category = 'BACKEND' | 'FRONTEND' | 'MOBILE' | 'DEVOPS';
-export type BossStatus = 'LOCKED' | 'ACTIVE' | 'COMPLETED' | 'FAILED';
-export type Quarter = 1 | 2 | 3 | 4;
+export type ProjectStatus = 'ACTIVE' | 'COMPLETED' | 'ON_HOLD' | 'ARCHIVED';

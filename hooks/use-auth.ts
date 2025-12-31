@@ -5,6 +5,7 @@ import { authApi } from '@/services/mock-api';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { AuthResponse } from '@/lib/types';
 import { toast } from '@/components/ui/use-toast';
+import { seedMockData } from '@/lib/mock-data';
 
 export function useAuth() {
   const [user, setUser] = useState<AuthResponse['user'] | null>(null);
@@ -22,7 +23,7 @@ export function useAuth() {
           setUser({
             user_id: userData.user_id,
             email: userData.email,
-            username: 'SkillSeeker', // From profile
+            username: 'ArchitectPrime', // Default or from profile
           });
           setIsAuthenticated(true);
         } else {
@@ -47,6 +48,7 @@ export function useAuth() {
       document.cookie = `odyssey_auth_token=${response.data.token}; path=/; max-age=3600`;
       setUser(response.data.user);
       setIsAuthenticated(true);
+      seedMockData(); // Initialize projects/missions for new user
       toast({ title: 'Welcome back!' });
       setIsLoading(false);
       return { success: true };

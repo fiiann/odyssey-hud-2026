@@ -1,5 +1,4 @@
-import { Quest } from './types';
-import { CATEGORIES } from './constants';
+import { Mission, Project } from './types';
 
 export function calculateLevel(totalMinutes: number): number {
   return Math.floor(Math.sqrt(totalMinutes / 60));
@@ -33,31 +32,16 @@ export function getXpProgress(totalMinutes: number): {
   };
 }
 
-export function getCategoryStats(quests: Quest[]): Array<{
-  category: string;
-  totalMinutes: number;
-  percentage: number;
-  color: string;
-}> {
-  const totals: Record<string, number> = {
-    BACKEND: 0,
-    FRONTEND: 0,
-    MOBILE: 0,
-    DEVOPS: 0,
-  };
+export function getProjectExecutionStats(missions: Mission[], projects: Project[]) {
+  const projectMissions: Record<string, number> = {};
 
-  let grandTotal = 0;
-
-  quests.forEach((quest) => {
-    totals[quest.category] += quest.durationMin;
-    grandTotal += quest.durationMin;
+  missions.forEach(m => {
+    projectMissions[m.projectId] = (projectMissions[m.projectId] || 0) + m.durationMin;
   });
 
-  return Object.entries(totals).map(([category, minutes]) => ({
-    category,
-    totalMinutes: minutes,
-    percentage: grandTotal > 0 ? (minutes / grandTotal) * 100 : 0,
-    color: CATEGORIES[category as keyof typeof CATEGORIES].color,
+  return projects.map(p => ({
+    ...p,
+    totalMinutes: projectMissions[p.projectId] || 0,
   }));
 }
 
