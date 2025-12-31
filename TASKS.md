@@ -8,51 +8,7 @@
 
 ### High Priority
 
-- [ ] **[HIGH]** Create global table component and project list page
-  - **Estimated:** 4 hours
-  - **Context:** Add "See All" button next to "Initiate Project" button on dashboard, create reusable table component with pagination, build project list page
-  - **Files to create:**
-    - `components/ui/table.tsx` (Global reusable table component)
-    - `components/ui/pagination.tsx` (Pagination controls)
-    - `app/projects/page.tsx` (Project list page)
-  - **Files to modify:**
-    - `app/dashboard/page.tsx` (Add "See All" button next to "Initiate Project")
-  - **Reference:** `.claude/quick-reference.md` → "Reusable Components" section
-  - **Acceptance Criteria:**
-    - [ ] **Dashboard Update**: Add "See All" button next to "Initiate Project" button with same styling
-    - [ ] **Table Component** (`components/ui/table.tsx`):
-      - Generic TypeScript component accepting `columns` and `data` props
-      - Column definition: `key`, `header`, `renderCell` function, `sortable` flag, `width`
-      - Sorting support: Click column headers to sort ASC/DESC
-      - Loading state: Show skeleton rows when `loading=true`
-      - Empty state: Show illustration and message when `data.length === 0`
-      - Row actions: Support for custom action buttons per row (edit, delete, etc.)
-      - Responsive: Horizontal scroll on mobile, full width on desktop
-      - Styling: Dark theme with `border-white/5`, `bg-[#121214]`, hover states
-    - [ ] **Pagination Component** (`components/ui/pagination.tsx`):
-      - Accept `currentPage`, `totalPages`, `onPageChange` props
-      - Show page numbers, Previous/Next buttons
-      - Disabled state for Prev/Next when at start/end
-      - Compact design: "Prev 1 2 3 ... 10 Next"
-      - Styling: Matches dashboard theme with primary color for active page
-    - [ ] **Project List Page** (`app/projects/page.tsx`):
-      - Navbar same as dashboard with "Back to Dashboard" link
-      - Page title: "All Sectors" with project count badge
-      - Table columns:
-        1. **Project** (title + description truncated)
-        2. **Status** (badge with icon: ACTIVE/COMPLETED/ON_HOLD/ARCHIVED)
-        3. **Progress** (visual progress bar + percentage text)
-        4. **Time Logged** (formatted duration from linked missions)
-        5. **Links** (repo URL, deploy URL as icon buttons)
-        6. **Actions** (edit, delete buttons)
-      - Pagination: 10 projects per page
-      - Sorting: Default sort by status (ACTIVE first), then by created date
-      - Filters: Optional status filter dropdown (All, Active, Completed, On Hold, Archived)
-      - Empty state: "No sectors found. Initialize your first project."
-    - [ ] **Navigation**: "See All" button routes to `/projects`
-    - [ ] **Responsive**: Full table on desktop, card view or scrollable table on mobile
-    - [ ] **Optimistic UI**: Instant feedback on delete/edit actions
-    - [ ] **Performance**: Use React.memo for table rows to prevent unnecessary re-renders
+
 
 - [ ] **[HIGH]** Add skeleton loading components
   - **Estimated:** 2 hours
@@ -264,6 +220,12 @@
 - [x] Fix authentication redirect
   - Completed: 2025-12-31
   - Token stored in both localStorage and cookie
+
+- [x] Create global table component and project list page
+  - Completed: 2026-01-01
+  - Created reusable `Table` and `Pagination` components
+  - Implemented `/projects` page with search, filter, sort, and pagination
+  - Added "See All" link to dashboard
 
 ---
 

@@ -236,10 +236,15 @@ export default function DashboardPage() {
                 <LayoutGrid className="w-5 h-5 text-primary" />
                 <h2 className="text-xl font-bold tracking-tight">Project Sectors</h2>
               </div>
-              <Button size="sm" onClick={() => setProjectModalOpen(true)} className="rounded-full px-4 h-8 bg-white/5 text-xs border border-white/10 hover:bg-white/10 transition-all">
-                <Plus className="w-3 h-3 mr-2" />
-                Initiate Project
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => router.push('/projects')} className="rounded-full px-4 h-8 text-xs text-muted-foreground hover:text-foreground">
+                  See All
+                </Button>
+                <Button size="sm" onClick={() => setProjectModalOpen(true)} className="rounded-full px-4 h-8 bg-white/5 text-xs border border-white/10 hover:bg-white/10 transition-all">
+                  <Plus className="w-3 h-3 mr-2" />
+                  Initiate Project
+                </Button>
+              </div>
             </div>
 
             {projectsLoading ? (
