@@ -8,85 +8,6 @@
 
 ### High Priority
 
-- [ ] **[HIGH]** Create project detail page with mission timeline
-  - **Estimated:** 3 hours
-  - **Context:** Add clickable navigation to project cards and table rows, create dynamic project detail page with full mission history and analytics
-  - **Files to create:**
-    - `app/projects/[projectId]/page.tsx` (Dynamic project detail page)
-    - `components/project/project-header.tsx` (Project detail header component)
-    - `components/project/mission-timeline.tsx` (Vertical mission timeline)
-    - `components/project/project-stats.tsx` (Project-specific stat cards)
-  - **Files to modify:**
-    - `app/dashboard/page.tsx` (Make project cards clickable)
-    - `app/projects/page.tsx` (Make table rows clickable)
-    - `hooks/use-projects.ts` (Add function to get project by ID)
-  - **Reference:** `.claude/workflows.md` → "Creating Dynamic Routes" section
-  - **Acceptance Criteria:**
-    - [ ] **Navigation Updates**:
-      - Dashboard: Make entire project card clickable (add hover effect, cursor pointer)
-      - Projects list: Make table row clickable (except action buttons)
-      - Route to `/projects/[projectId]` on click
-    - [ ] **Project Detail Page Layout**:
-      - **Navbar**: Same as dashboard with "Back to Dashboard" link
-      - **Breadcrumbs**: Dashboard → Projects → [Project Title]
-      - **Page Header**:
-        - Project title (large, bold, matches dashboard styling)
-        - Status badge with icon (ACTIVE/COMPLETED/ON_HOLD/ARCHIVED)
-        - Edit button (opens edit modal)
-        - Delete button (with confirmation)
-        - Creation date (e.g., "Initiated on Dec 31, 2025")
-      - **Project Stats Row** (3 cards):
-        1. **Total Missions**: Count with icon
-        2. **Execution Time**: Total duration formatted (e.g., "12h 45m")
-        3. **Avg per Mission**: Average time (e.g., "45m")
-      - **Progress Section**:
-        - Large progress bar (0-100%)
-        - Percentage text
-        - "Update Progress" button
-      - **Links Section**:
-        - Repo URL button (if exists) with ExternalLink icon
-        - Deploy URL button (if exists) with rocket icon
-    - [ ] **Mission Timeline Section**:
-      - **Section Header**: "Mission Execution Log" + filter dropdown (All/This Week/This Month)
-      - **Vertical Timeline Design**:
-        - Left side: Date badges grouped by day
-        - Right side: Mission cards for each day
-        - Timeline line connecting cards
-        - Animated entrance for each mission card
-      - **Mission Card Details**:
-        - Title (bold)
-        - Duration (badge with minutes)
-        - Time of day (e.g., "2:30 PM")
-        - Delete button (hover to show)
-      - **Empty State**: "No missions logged for this sector yet. Start executing!"
-    - [ ] **Analytics Section** (Optional, if time permits):
-      - **Daily Execution Chart**: Simple bar chart showing minutes per day (last 7 days)
-      - Use CSS-based bars (no external library needed)
-      - Hover to see exact minutes
-    - [ ] **Styling Consistency**:
-      - Use same dark theme: `bg-[#09090b]`, `border-white/5`
-      - Match dashboard typography and spacing
-      - Use same primary color for accents
-      - Responsive: Stack cards on mobile, 2-3 columns on desktop
-    - [ ] **Loading States**:
-      - Show skeleton cards while loading project data
-      - Show skeleton timeline while loading missions
-    - [ ] **Error Handling**:
-      - 404 page if project not found
-      - Error message if data fails to load
-    - [ ] **Optimistic UI**:
-      - Instant feedback when deleting missions
-      - Instant progress bar updates
-    - [ ] **URL Structure**:
-      - Use Next.js dynamic routes: `/projects/[projectId]`
-      - Get projectId from URL params
-      - Fetch project and missions on mount
-    - [ ] **Performance**:
-      - Use React.memo for mission cards
-      - Virtualize timeline if many missions (100+)
-      - Lazy load chart/analytics section
-
-
 - [ ] **[HIGH]** Add skeleton loading components
   - **Estimated:** 2 hours
   - **Context:** Create placeholder loading states for all major components
@@ -238,6 +159,14 @@
 
 ## ✅ COMPLETED
 
+- [x] Create project detail page with mission timeline
+  - Completed: 2026-01-01
+  - Created dynamic route at /projects/[projectId]
+  - Implemented vertical mission timeline with date grouping
+  - Added project stats cards (missions, time, average)
+  - Made project cards clickable on dashboard
+  - Commit: d5b7b54
+
 - [x] Initialize Next.js 16 project
   - Completed: 2025-12-31
   - Commit: Initial project setup
@@ -386,18 +315,18 @@ Before moving a task to COMPLETED:
 ## 📊 Statistics
 
 ### Current Sprint
-- **TO DO:** 8 tasks (5 HIGH, 2 MED, 1 LOW)
+- **TO DO:** 7 tasks (4 HIGH, 2 MED, 1 LOW)
 - **BACKLOG:** 5 tasks
-- **COMPLETED:** 16 tasks
+- **COMPLETED:** 17 tasks
 
 ### Velocity
-- **Last 7 days:** 16 tasks completed
-- **Average:** 2.3 tasks/day
+- **Last 7 days:** 17 tasks completed
+- **Average:** 2.4 tasks/day
 
 ### Next Focus
-1. Project detail page with mission timeline
-2. Skeleton loading components
-3. Quest category filtering
+1. Skeleton loading components
+2. Quest category filtering
+3. Search functionality
 
 ---
 
