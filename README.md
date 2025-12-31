@@ -203,8 +203,8 @@ These are partially implemented or could be improved:
 
 ```bash
 # Clone the repo
-git clone <your-repo-url>
-cd HUD
+git clone https://github.com/fiiann/odyssey-hud-2026.git
+cd odyssey-hud-2026
 
 # Install dependencies
 npm install
