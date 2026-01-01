@@ -1,6 +1,6 @@
 import {
   ApiResponse, AuthResponse, ProfileData,
-  MissionData, ProjectData
+  MissionData, ProjectData, TaskData
 } from '@/lib/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 
@@ -103,6 +103,20 @@ export const missionApi = {
       localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
     }
 
+    // NEW: If mission is linked to a task, update task's actual_min
+    if (data.task_id) {
+      const tasksStored = localStorage.getItem(STORAGE_KEYS.TASKS);
+      if (tasksStored) {
+        const tasks: TaskData[] = JSON.parse(tasksStored);
+        const taskIndex = tasks.findIndex(t => t.task_id === data.task_id);
+        if (taskIndex !== -1) {
+          tasks[taskIndex].actual_min = (tasks[taskIndex].actual_min || 0) + data.duration_min;
+          tasks[taskIndex].updated_at = new Date().toISOString();
+          localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+        }
+      }
+    }
+
     return { success: true, data: newMission };
   },
   deleteMission: async (missionId: string): Promise<ApiResponse<{ deleted: boolean }>> => {
@@ -121,6 +135,20 @@ export const missionApi = {
         profile.total_xp = Math.max(0, profile.total_xp - mission.duration_min);
         profile.current_level = Math.floor(Math.sqrt(profile.total_xp / 60));
         localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+      }
+
+      // NEW: If mission was linked to a task, decrement task's actual_min
+      if (mission.task_id) {
+        const tasksStored = localStorage.getItem(STORAGE_KEYS.TASKS);
+        if (tasksStored) {
+          const tasks: TaskData[] = JSON.parse(tasksStored);
+          const taskIndex = tasks.findIndex(t => t.task_id === mission.task_id);
+          if (taskIndex !== -1) {
+            tasks[taskIndex].actual_min = Math.max(0, (tasks[taskIndex].actual_min || 0) - mission.duration_min);
+            tasks[taskIndex].updated_at = new Date().toISOString();
+            localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+          }
+        }
       }
     }
     return { success: true, data: { deleted: true } };
@@ -166,5 +194,98 @@ export const projectApi = {
     const filtered = projects.filter(p => p.project_id !== projectId);
     localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(filtered));
     return { success: true, data: { deleted: true } };
+  },
+};
+
+// NEW: Task API
+export const taskApi = {
+  getTasks: async (projectId?: string): Promise<ApiResponse<TaskData[]>> => {
+    await simulateDelay();
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    let tasks = stored ? JSON.parse(stored) : [];
+
+    if (projectId) {
+      tasks = tasks.filter((t: TaskData) => t.project_id === projectId);
+    }
+
+    return { success: true, data: tasks };
+  },
+
+  getTaskById: async (taskId: string): Promise<ApiResponse<TaskData>> => {
+    await simulateDelay();
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    const tasks: TaskData[] = stored ? JSON.parse(stored) : [];
+    const task = tasks.find(t => t.task_id === taskId);
+
+    if (task) {
+      return { success: true, data: task };
+    }
+    return { success: false, error: 'Task not found' };
+  },
+
+  createTask: async (data: Omit<TaskData, 'task_id' | 'created_at' | 'updated_at' | 'actual_min' | 'tags' | 'position'>): Promise<ApiResponse<TaskData>> => {
+    await simulateDelay();
+    if (shouldSimulateError()) return { success: false, error: 'Network failure' };
+
+    const newTask: TaskData = {
+      task_id: `task_${Date.now()}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      actual_min: 0,
+      tags: data.tags || [],
+      position: Date.now(),
+      ...data,
+    };
+
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    const tasks = stored ? JSON.parse(stored) : [];
+    tasks.push(newTask);
+    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+
+    return { success: true, data: newTask };
+  },
+
+  updateTask: async (taskId: string, updates: Partial<TaskData>): Promise<ApiResponse<TaskData>> => {
+    await simulateDelay();
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    const tasks: TaskData[] = stored ? JSON.parse(stored) : [];
+    const index = tasks.findIndex(t => t.task_id === taskId);
+
+    if (index !== -1) {
+      // If marking as completed, set completed_at
+      if (updates.status === 'COMPLETED' && !tasks[index].completed_at) {
+        updates.completed_at = new Date().toISOString();
+      }
+
+      tasks[index] = { ...tasks[index], ...updates, updated_at: new Date().toISOString() };
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+      return { success: true, data: tasks[index] };
+    }
+    return { success: false, error: 'Task not found' };
+  },
+
+  deleteTask: async (taskId: string): Promise<ApiResponse<{ deleted: boolean }>> => {
+    await simulateDelay();
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    const tasks: TaskData[] = stored ? JSON.parse(stored) : [];
+    const filtered = tasks.filter(t => t.task_id !== taskId);
+    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(filtered));
+    return { success: true, data: { deleted: true } };
+  },
+
+  // Update actual_min when mission is linked to task
+  updateTaskTime: async (taskId: string, durationMin: number): Promise<ApiResponse<TaskData>> => {
+    await simulateDelay();
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    const tasks: TaskData[] = stored ? JSON.parse(stored) : [];
+    const index = tasks.findIndex(t => t.task_id === taskId);
+
+    if (index !== -1) {
+      tasks[index].actual_min = (tasks[index].actual_min || 0) + durationMin;
+      tasks[index].updated_at = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+      return { success: true, data: tasks[index] };
+    }
+    return { success: false, error: 'Task not found' };
   },
 };
