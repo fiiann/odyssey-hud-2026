@@ -54,6 +54,229 @@ Introduce a **3-tier hierarchy**: **Projects → Tasks → Missions**
 
 ---
 
+## 🎮 UNIQUE FEATURE: Dual Terminology System
+
+**Overview:** Odyssey HUD offers two distinct modes for terminology - a unique differentiator in the productivity tools market!
+
+### Mode 1: 🎯 Professional Mode (Default)
+**Target Audience:** Corporate environments, serious productivity users
+**Style:** Clean, Jira/Asana/Linear-style professional terminology
+
+### Mode 2: 🎮 Odyssey Mode (Game-like)
+**Target Audience:** Developers who want fun, gamified experience
+**Style:** RPG game terminology with epic, immersive language
+
+### Terminology Mapping
+
+| Concept | Professional Mode | Odyssey Mode |
+|---------|------------------|--------------|
+| **3-Tier Hierarchy** | Project → Task → Time Entry | Sector → Mission → Execution Log |
+| **Project** | Project | Sector |
+| **Task** | Task | Mission |
+| **Time Log** | Time Entry / Work Log | Execution Log / Battle Log |
+| **User** | User | Architect |
+| **Level** | Level | Rank |
+| **XP** | Experience Points | Execution Credits |
+| **Status** | | |
+| → TODO | To Do | Pending |
+| → IN_PROGRESS | In Progress | Active |
+| → COMPLETED | Completed | Complete |
+| → CANCELLED | Cancelled | Aborted |
+| **Priority** | | |
+| → URGENT | Critical | Legendary |
+| → HIGH | High | Epic |
+| → MEDIUM | Medium | Rare |
+| → LOW | Low | Common |
+| **Categories** | | |
+| → Backend | Backend | Backend Engineering |
+| → Frontend | Frontend | Frontend Engineering |
+| → DevOps | DevOps | Infrastructure |
+| → Design | Design | Visual Design |
+| → Testing | QA | Quality Assurance |
+| → Documentation | Docs | Knowledge Base |
+| **UI Labels** | | |
+| → Create Task | Create Task | Accept Mission |
+| → Edit Task | Edit Task | Modify Mission |
+| → Delete Task | Delete Task | Abort Mission |
+| → Start Task | Start Task | Deploy to Sector |
+| → Complete Task | Complete Task | Mission Accomplished |
+| → Log Time | Log Time | Record Execution |
+| → View Stats | View Statistics | Access Intel |
+| → Settings | Settings | Command Center |
+| → Dashboard | Dashboard | War Room |
+| → Search | Search | Scan Database |
+| → Filter | Filter | Filter Intel |
+| **Messages/Feedback** | | |
+| → Task created | Task created successfully | Mission accepted, Architect |
+| → Task updated | Task updated | Mission parameters updated |
+| → Task deleted | Task deleted | Mission terminated |
+| → Time logged | Time entry saved | Execution recorded in archives |
+| → Level up | Level up! | Rank increased! Promotion earned! |
+| → Achievement | Achievement unlocked | Badge acquired! |
+| **Empty States** | | |
+| → No tasks | No tasks yet | No active missions, Architect |
+| → All done | All tasks completed | All missions accomplished! Sector secured! |
+| **Time Periods** | | |
+| → Today | Today | Current cycle |
+| → This week | This week | Current phase |
+| → This month | This month | Current quarter |
+| → All time | All time | Total tours of duty |
+
+### Mode Selection UI
+
+**Settings Toggle:**
+```
+┌─────────────────────────────────────────────┐
+│ 🎨 Display Settings                         │
+├─────────────────────────────────────────────┤
+│ Terminology Mode:                           │
+│ ◉ 🎯 Professional Mode (Jira-style)         │
+│ ○ 🎮 Odyssey Mode (Game-like)               │
+│                                             │
+│ [Preview Terms] [Apply]                     │
+└─────────────────────────────────────────────┘
+```
+
+**Tooltip/Info:**
+- **Professional Mode**: Standard project management terminology suitable for workplace environments
+- **Odyssey Mode**: Immersive RPG-style terminology for a gamified tracking experience
+
+### Technical Implementation
+
+```typescript
+// lib/terminology.ts
+export type TerminologyMode = 'PROFESSIONAL' | 'ODYSSEY';
+
+export const TERMINOLOGY = {
+  PROFESSIONAL: {
+    project: 'Project',
+    task: 'Task',
+    timeEntry: 'Time Entry',
+    mission: 'Time Entry', // Alias
+    createTask: 'Create Task',
+    logTime: 'Log Time',
+    status: {
+      TODO: 'To Do',
+      IN_PROGRESS: 'In Progress',
+      COMPLETED: 'Completed',
+      CANCELLED: 'Cancelled',
+    },
+    priority: {
+      URGENT: 'Critical',
+      HIGH: 'High',
+      MEDIUM: 'Medium',
+      LOW: 'Low',
+    },
+    // ... all terms
+  },
+  ODYSSEY: {
+    project: 'Sector',
+    task: 'Mission',
+    timeEntry: 'Execution Log',
+    mission: 'Execution Log',
+    createTask: 'Accept Mission',
+    logTime: 'Record Execution',
+    status: {
+      TODO: 'Pending',
+      IN_PROGRESS: 'Active',
+      COMPLETED: 'Complete',
+      CANCELLED: 'Aborted',
+    },
+    priority: {
+      URGENT: 'Legendary',
+      HIGH: 'Epic',
+      MEDIUM: 'Rare',
+      LOW: 'Common',
+    },
+    // ... all terms
+  },
+};
+
+// Hook to get terminology based on mode
+export function useTerminology(mode: TerminologyMode = 'PROFESSIONAL') {
+  return TERMINOLOGY[mode];
+}
+```
+
+### Storage & Persistence
+
+```typescript
+// User preference stored in profile
+interface ProfileSettings {
+  terminologyMode: TerminologyMode;
+  // ... other settings
+}
+
+// Default: Professional Mode
+const DEFAULT_MODE: TerminologyMode = 'PROFESSIONAL';
+```
+
+### UI Component Updates
+
+**Before (Hardcoded):**
+```tsx
+<Button>Create Task</Button>
+<Badge>{task.status === 'TODO' ? 'To Do' : 'Done'}</Badge>
+```
+
+**After (Dynamic):**
+```tsx
+const t = useTerminology(mode);
+
+<Button>{t.createTask}</Button>
+<Badge>{t.status[task.status]}</Badge>
+```
+
+### Impact on Existing Features
+
+**Unchanged (Same in both modes):**
+- Data models (still use `Task`, `Mission`, `Project` in code)
+- API endpoints
+- Database schema
+- Core functionality
+
+**Changed (UI labels only):**
+- Button labels
+- Status badges
+- Priority indicators
+- Empty state messages
+- Toast notifications
+- Page headings
+- Navigation items
+- Help text and tooltips
+
+### Marketing Angle
+
+**Headline:** "The Only Productivity Tool with a Personality"
+
+**Value Prop:**
+- Use Professional Mode at work for clean, serious interface
+- Switch to Odyssey Mode for personal projects - gamify your workflow!
+- Unique differentiation in crowded project management market
+- Appeals to developer community with fun, immersive theme
+
+**Launch Strategy:**
+1. Launch with **Professional Mode as default** (safe, accessible)
+2. Feature Odyssey Mode in marketing ("Try Game Mode!")
+3. Showcase mode switching in demo video
+4. Developer community outreach (HackerNews, Reddit, Twitter)
+5. "Switch to Game Mode Friday" internal culture
+
+### Future Enhancements
+
+**Phase 2:** Additional Themes
+- 🌌 **Cyberpunk Mode**: Sci-fi/hacker terminology
+- 🏴‍☠️ **Pirate Mode**: Fun nautical theme
+- 🧙‍♂️**Fantasy Mode**: D&D-style terminology
+- 🎸 **Rockstar Mode**: Music industry terms
+
+**Phase 3:** Custom Terminology
+- Let users define custom terms
+- Team-level terminology (shared across org)
+- Import/export terminology packs
+
+---
+
 ## 🎯 Core Objectives
 
 ### Primary Objectives
@@ -714,6 +937,51 @@ export function useTasks(projectId?: string) {
 
 ### Phase 1: MVP - Core Task Management
 
+#### Epic 0: Dual Terminology System ⭐ UNIQUE FEATURE
+**As a** user
+**I want to** switch between Professional and Odyssey terminology modes
+**So that** I can choose a style that fits my context (work vs personal)
+
+**Acceptance Criteria:**
+
+- [ ] **Terminology Foundation**
+  - [ ] Create `lib/terminology.ts` with complete term mappings
+  - [ ] Define TerminologyMode type ('PROFESSIONAL' | 'ODYSSEY')
+  - [ ] Create TERMINOLOGY constant with all terms for both modes
+  - [ ] Create useTerminology() hook for accessing terms
+
+- [ ] **Mode Selection UI**
+  - [ ] Add terminology toggle in settings/profile menu
+  - [ ] Radio buttons: 🎯 Professional Mode (default) / 🎮 Odyssey Mode
+  - [ ] Preview button to show sample terms before switching
+  - [ ] Apply button to save selection
+  - [ ] Mode preference saved to localStorage in profile
+
+- [ ] **Dynamic Labels Throughout App**
+  - [ ] Update all Task-related UI to use dynamic terms
+  - [ ] Update all Mission/Time Entry UI to use dynamic terms
+  - [ ] Update all Status badges (TODO/IN_PROGRESS/COMPLETED)
+  - [ ] Update all Priority badges (LOW/MEDIUM/HIGH/URGENT)
+  - [ ] Update all button labels (Create, Edit, Delete, etc.)
+  - [ ] Update all empty state messages
+  - [ ] Update all toast notifications
+  - [ ] Update all page headings and titles
+
+- [ ] **Mode Persistence**
+  - [ ] Selected mode persists across sessions
+  - [ ] Default to PROFESSIONAL mode for new users
+  - [ ] Mode selection syncs with profile data
+  - [ ] Mode change reflects immediately without page reload
+
+- [ ] **Testing**
+  - [ ] Verify all terms in Professional mode display correctly
+  - [ ] Verify all terms in Odyssey mode display correctly
+  - [ ] Test mode switching doesn't break functionality
+  - [ ] Test mode persistence across browser refresh
+  - [ ] Test all existing features still work in both modes
+
+**Priority:** HIGH (This is a key differentiator feature)
+
 #### Epic 1: Task CRUD Operations
 **As a** user tracking project work
 **I want to** create, read, update, and delete tasks
@@ -948,7 +1216,7 @@ export function useTasks(projectId?: string) {
 **Sprint 1: Foundation (Days 1-3)**
 - Day 1: Data models, types, transformers, validations
 - Day 2: Mock API layer (taskApi)
-- Day 3: Hook layer (useTasks)
+- Day 3: Hook layer (useTasks) + **Terminology System** (lib/terminology.ts)
 
 **Sprint 2: UI Components (Days 4-7)**
 - Day 4: TaskCard, TaskList components
@@ -961,11 +1229,11 @@ export function useTasks(projectId?: string) {
 - Day 9: Enhance Mission modal for task linking
 - Day 10: Update MissionTimeline to show linked tasks
 
-**Sprint 4: Views & Polish (Days 11-14)**
+**Sprint 4: Views, Polish & Terminology (Days 11-14)**
 - Day 11: Task board (Kanban) view
 - Day 12: Filtering and search
-- Day 13: Testing, bug fixes, edge cases
-- Day 14: Documentation, code cleanup
+- Day 13: **Implement terminology toggle UI** + apply dynamic labels throughout
+- Day 14: Testing, bug fixes, edge cases, documentation
 
 ### Phase 2: Advanced Features (Future - TBD)
 
