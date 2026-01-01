@@ -44,7 +44,7 @@ export default function ProjectDetailPage() {
   // Task modals
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [taskDetailModalOpen, setTaskDetailModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isEditingTask, setIsEditingTask] = useState(false);
 
   // Task view mode
@@ -161,7 +161,7 @@ export default function ProjectDetailPage() {
   const handleUpdateTask = async (data: TaskFormValues) => {
     if (selectedTask) {
       await updateTask(selectedTask.taskId, data as any);
-      setSelectedTask(null);
+      setSelectedTask(undefined);
       setIsEditingTask(false);
     }
   };
@@ -170,7 +170,7 @@ export default function ProjectDetailPage() {
     if (selectedTask && confirm('Delete this task? Linked missions will be preserved.')) {
       await deleteTask(selectedTask.taskId);
       setTaskDetailModalOpen(false);
-      setSelectedTask(null);
+      setSelectedTask(undefined);
     }
   };
 
@@ -186,7 +186,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleCreateTaskClick = () => {
-    setSelectedTask(null);
+    setSelectedTask(undefined);
     setIsEditingTask(false);
     setTaskModalOpen(true);
   };
@@ -405,7 +405,6 @@ export default function ProjectDetailPage() {
                 <div className="space-y-1">
                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Completion Status ({project.progress}%)</Label>
                   <Input
-                    name="progress"
                     type="number"
                     min="0"
                     max="100"

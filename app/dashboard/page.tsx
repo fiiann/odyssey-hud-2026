@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const { profile, isLoading: profileLoading, levelUpModal } = useProfile();
   const { missions, isLoading: missionsLoading, createMission, deleteMission } = useMissions();
   const { projects, isLoading: projectsLoading, createProject, updateProject, deleteProject } = useProjects();
-  const { tasks, getTasksByProject } = useTasks();
+  const { tasks } = useTasks();
 
   const [missionModalOpen, setMissionModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);

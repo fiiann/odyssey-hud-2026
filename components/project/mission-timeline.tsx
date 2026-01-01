@@ -7,11 +7,13 @@ import { ScrollText, Link2 } from 'lucide-react';
 import { Mission, Task } from '@/lib/types';
 import { getRelativeTime } from '@/lib/calculations';
 import { TASK_STATUS } from '@/lib/constants';
+import { useTerminology } from '@/lib/terminology';
 
 interface MissionTimelineProps {
   missions: Mission[];
   onDeleteMission: (missionId: string) => void;
   tasks?: Task[]; // NEW: Pass tasks for linking
+  mode?: 'PROFESSIONAL' | 'ODYSSEY';
 }
 
 interface MissionCardProps {
@@ -70,7 +72,8 @@ const MissionCard = memo(({ mission, onDeleteMission, linkedTask }: MissionCardP
 
 MissionCard.displayName = 'MissionCard';
 
-export function MissionTimeline({ missions, onDeleteMission, tasks = [] }: MissionTimelineProps) {
+export function MissionTimeline({ missions, onDeleteMission, tasks = [], mode = 'PROFESSIONAL' }: MissionTimelineProps) {
+  const t = useTerminology(mode);
   // Group missions by date
   const groupedMissions = missions.reduce((acc, mission) => {
     const date = new Date(mission.createdAt).toDateString();

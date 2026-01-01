@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 interface TaskDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  task: Task | null;
+  task: Task | undefined;
   missions?: Mission[];
   onEdit?: () => void;
   onDelete?: () => void;
@@ -52,7 +52,7 @@ export function TaskDetailModal({
   // Calculate variance
   const hasTimeTracking = task.estimatedMin && task.actualMin !== undefined;
   const variance = hasTimeTracking
-    ? ((task.actualMin - task.estimatedMin) / task.estimatedMin) * 100
+    ? ((task.actualMin! - task.estimatedMin!) / task.estimatedMin!) * 100
     : null;
 
   const formatMinutes = (minutes: number) => {

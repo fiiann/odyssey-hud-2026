@@ -43,7 +43,7 @@ export function TaskCard({ task, onClick, mode = 'PROFESSIONAL' }: TaskCardProps
   // Calculate variance
   const hasTimeTracking = task.estimatedMin && task.actualMin !== undefined;
   const variance = hasTimeTracking
-    ? ((task.actualMin - task.estimatedMin) / task.estimatedMin) * 100
+    ? ((task.actualMin! - task.estimatedMin!) / task.estimatedMin!) * 100
     : null;
 
   const formatMinutes = (minutes: number) => {

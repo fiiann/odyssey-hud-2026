@@ -76,7 +76,6 @@ export const TERMINOLOGY = {
     // UI Labels - Navigation
     dashboard: 'Dashboard',
     settings: 'Settings',
-    projects: 'Projects',
     search: 'Search',
     filter: 'Filter',
 
@@ -202,7 +201,6 @@ export const TERMINOLOGY = {
     // UI Labels - Navigation
     dashboard: 'War Room',
     settings: 'Command Center',
-    projects: 'Sectors',
     search: 'Scan Database',
     filter: 'Filter Intel',
 

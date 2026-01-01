@@ -146,18 +146,24 @@ export default function ProjectsPage() {
             renderCell: (project) => (
                 <div className="flex gap-2">
                     {project.repoUrl && (
-                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
-                            <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
-                            </a>
-                        </Button>
+                        <a
+                            href={project.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                        >
+                            <ExternalLink className="h-4 w-4" />
+                        </a>
                     )}
                     {project.deployUrl && (
-                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
-                            <a href={project.deployUrl} target="_blank" rel="noopener noreferrer">
-                                <Rocket className="h-4 w-4" />
-                            </a>
-                        </Button>
+                        <a
+                            href={project.deployUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                        >
+                            <Rocket className="h-4 w-4" />
+                        </a>
                     )}
                 </div>
             ),

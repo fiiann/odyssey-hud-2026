@@ -85,20 +85,26 @@ export function ProjectHeader({ project, totalMissions, totalDuration, avgDurati
       {(project.repoUrl || project.deployUrl) && (
         <div className="flex items-center gap-3">
           {project.repoUrl && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="gap-2">
-                <ExternalLink className="w-4 h-4" />
-                Repository
-              </a>
-            </Button>
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-white/10 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Repository
+            </a>
           )}
           {project.deployUrl && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={project.deployUrl} target="_blank" rel="noopener noreferrer" className="gap-2">
-                <Rocket className="w-4 h-4" />
-                Live Deployment
-              </a>
-            </Button>
+            <a
+              href={project.deployUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-white/10 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+            >
+              <Rocket className="w-4 h-4" />
+              Live Deployment
+            </a>
           )}
         </div>
       )}

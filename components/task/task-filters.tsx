@@ -35,7 +35,7 @@ export function TaskFilters({ filters, onFiltersChange, mode = 'PROFESSIONAL' }:
     (filters.search.length > 0 ? 1 : 0);
 
   const allStatuses: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
-  const allPriorities: TaskPriority[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+  const allPriorities: TaskPriority[] = ['URGENT', 'HIGH', 'MEDIUM', 'LOW'];
 
   const toggleStatus = (status: TaskStatus) => {
     const newStatus = filters.status.includes(status)
