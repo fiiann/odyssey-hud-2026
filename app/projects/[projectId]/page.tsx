@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useProjects } from '@/hooks/use-projects';
@@ -13,6 +13,7 @@ import { MissionTimeline } from '@/components/project/mission-timeline';
 import { TaskStats } from '@/components/task/task-stats';
 import { TaskList } from '@/components/task/task-list';
 import { TaskBoard } from '@/components/task/task-board';
+import { TaskFilters, TaskFilters as TaskFiltersType } from '@/components/task/task-filters';
 import { TaskModal } from '@/components/task/task-modal';
 import { TaskDetailModal } from '@/components/task/task-detail-modal';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,14 @@ export default function ProjectDetailPage() {
     return 'list';
   });
 
+  // Task filters
+  const [taskFilters, setTaskFilters] = useState<TaskFiltersType>({
+    status: [],
+    priority: [],
+    category: [],
+    search: ''
+  });
+
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
 
   useEffect(() => {
@@ -66,6 +75,45 @@ export default function ProjectDetailPage() {
       localStorage.setItem('taskViewMode', taskViewMode);
     }
   }, [taskViewMode]);
+
+  // Filter tasks based on current filters
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      // Status filter
+      if (taskFilters.status.length > 0 && !taskFilters.status.includes(task.status)) {
+        return false;
+      }
+
+      // Priority filter
+      if (taskFilters.priority.length > 0 && !taskFilters.priority.includes(task.priority)) {
+        return false;
+      }
+
+      // Category filter
+      if (taskFilters.category.length > 0) {
+        const taskCategory = task.category?.toLowerCase() || '';
+        const hasMatchingCategory = taskFilters.category.some(
+          cat => taskCategory.includes(cat.toLowerCase())
+        );
+        if (!hasMatchingCategory) {
+          return false;
+        }
+      }
+
+      // Search filter
+      if (taskFilters.search) {
+        const searchLower = taskFilters.search.toLowerCase();
+        const matchesTitle = task.title.toLowerCase().includes(searchLower);
+        const matchesDescription = task.description?.toLowerCase().includes(searchLower);
+        const matchesTags = task.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+        if (!matchesTitle && !matchesDescription && !matchesTags) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [tasks, taskFilters]);
 
   const projectId = params.projectId as string;
   const project = getProjectById(projectId);
@@ -256,17 +304,34 @@ export default function ProjectDetailPage() {
 
           {/* Task View - List or Board */}
           <div className="lg:col-span-3 space-y-4">
+            {/* Filters */}
+            <TaskFilters
+              filters={taskFilters}
+              onFiltersChange={setTaskFilters}
+            />
+
+            {/* Task List or Board */}
             {taskViewMode === 'list' ? (
               <TaskList
-                tasks={tasks}
+                tasks={filteredTasks}
                 onTaskClick={handleOpenTaskDetail}
               />
             ) : (
               <TaskBoard
-                tasks={tasks}
+                tasks={filteredTasks}
                 onTaskClick={handleOpenTaskDetail}
                 onTaskDrop={handleTaskDrop}
               />
+            )}
+
+            {/* Empty state when no tasks match filters */}
+            {filteredTasks.length === 0 && tasks.length > 0 && (
+              <Card className="border-dashed border-white/10 bg-transparent py-12">
+                <CardContent className="flex flex-col items-center text-center">
+                  <p className="text-muted-foreground font-medium mb-2">No tasks match your filters</p>
+                  <p className="text-sm text-muted-foreground/60">Try adjusting your filter criteria</p>
+                </CardContent>
+              </Card>
             )}
           </div>
 
