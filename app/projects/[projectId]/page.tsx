@@ -5,18 +5,25 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useProjects } from '@/hooks/use-projects';
 import { useMissions } from '@/hooks/use-missions';
+import { useTasks } from '@/hooks/use-tasks';
+import { Task } from '@/lib/types';
 import { ProjectHeader } from '@/components/project/project-header';
 import { ProjectStatsCards } from '@/components/project/project-stats-cards';
 import { MissionTimeline } from '@/components/project/mission-timeline';
+import { TaskStats } from '@/components/task/task-stats';
+import { TaskList } from '@/components/task/task-list';
+import { TaskModal } from '@/components/task/task-modal';
+import { TaskDetailModal } from '@/components/task/task-detail-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sword, Loader2, ArrowLeft } from 'lucide-react';
+import { Sword, Loader2, ArrowLeft, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type TaskFormValues } from '@/lib/validations';
 
 export default function ProjectDetailPage() {
   const router = useRouter();
@@ -24,9 +31,16 @@ export default function ProjectDetailPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { projects, getProjectById, updateProject, deleteProject } = useProjects();
   const { missions, deleteMission } = useMissions();
+  const { tasks, taskStats, createTask, updateTask, deleteTask, getTaskById } = useTasks(params.projectId as string);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+
+  // Task modals
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [taskDetailModalOpen, setTaskDetailModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditingTask, setIsEditingTask] = useState(false);
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
 
@@ -69,6 +83,44 @@ export default function ProjectDetailPage() {
     if (confirm('Confirm operational rollback for this mission?')) {
       await deleteMission(missionId);
     }
+  };
+
+  // Task handlers
+  const handleCreateTask = async (data: TaskFormValues) => {
+    await createTask(data as any);
+  };
+
+  const handleUpdateTask = async (data: TaskFormValues) => {
+    if (selectedTask) {
+      await updateTask(selectedTask.taskId, data as any);
+      setSelectedTask(null);
+      setIsEditingTask(false);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    if (selectedTask && confirm('Delete this task? Linked missions will be preserved.')) {
+      await deleteTask(selectedTask.taskId);
+      setTaskDetailModalOpen(false);
+      setSelectedTask(null);
+    }
+  };
+
+  const handleOpenTaskDetail = (task: Task) => {
+    setSelectedTask(task);
+    setTaskDetailModalOpen(true);
+  };
+
+  const handleEditTaskClick = () => {
+    setTaskDetailModalOpen(false);
+    setIsEditingTask(true);
+    setTaskModalOpen(true);
+  };
+
+  const handleCreateTaskClick = () => {
+    setSelectedTask(null);
+    setIsEditingTask(false);
+    setTaskModalOpen(true);
   };
 
   if (authLoading) {
@@ -141,6 +193,36 @@ export default function ProjectDetailPage() {
             />
           </div>
 
+          {/* Task Statistics - NEW */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight">
+                Task Statistics
+              </h2>
+              <Button onClick={handleCreateTaskClick} size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                New Task
+              </Button>
+            </div>
+            <TaskStats
+              total={taskStats.total}
+              todo={taskStats.todo}
+              inProgress={taskStats.inProgress}
+              completed={taskStats.completed}
+              cancelled={taskStats.cancelled}
+              estimatedTotal={taskStats.estimatedTotal}
+              actualTotal={taskStats.actualTotal}
+            />
+          </div>
+
+          {/* Task List - NEW */}
+          <div className="lg:col-span-3 space-y-4">
+            <TaskList
+              tasks={tasks}
+              onTaskClick={handleOpenTaskDetail}
+            />
+          </div>
+
           {/* Mission Timeline */}
           <div className="lg:col-span-3 space-y-4">
             <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -153,6 +235,27 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* Task Modal (Create/Edit) */}
+      <TaskModal
+        open={taskModalOpen}
+        onOpenChange={setTaskModalOpen}
+        onSubmit={isEditingTask ? handleUpdateTask : handleCreateTask}
+        task={selectedTask}
+        projects={[project]}
+        defaultProjectId={projectId}
+      />
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        open={taskDetailModalOpen}
+        onOpenChange={setTaskDetailModalOpen}
+        task={selectedTask}
+        missions={missions}
+        onEdit={handleEditTaskClick}
+        onDelete={handleDeleteTask}
+        onDeleteMission={handleDeleteMission}
+      />
 
       {/* Edit Project Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
