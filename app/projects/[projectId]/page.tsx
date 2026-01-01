@@ -12,11 +12,12 @@ import { ProjectStatsCards } from '@/components/project/project-stats-cards';
 import { MissionTimeline } from '@/components/project/mission-timeline';
 import { TaskStats } from '@/components/task/task-stats';
 import { TaskList } from '@/components/task/task-list';
+import { TaskBoard } from '@/components/task/task-board';
 import { TaskModal } from '@/components/task/task-modal';
 import { TaskDetailModal } from '@/components/task/task-detail-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sword, Loader2, ArrowLeft, Plus } from 'lucide-react';
+import { Sword, Loader2, ArrowLeft, Plus, LayoutList, LayoutGrid } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +43,15 @@ export default function ProjectDetailPage() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditingTask, setIsEditingTask] = useState(false);
 
+  // Task view mode
+  const [taskViewMode, setTaskViewMode] = useState<'list' | 'board'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('taskViewMode');
+      return (saved === 'list' || saved === 'board') ? saved : 'list';
+    }
+    return 'list';
+  });
+
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
 
   useEffect(() => {
@@ -49,6 +59,13 @@ export default function ProjectDetailPage() {
       router.push('/login');
     }
   }, [authLoading, isAuthenticated, router]);
+
+  // Persist view mode preference
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('taskViewMode', taskViewMode);
+    }
+  }, [taskViewMode]);
 
   const projectId = params.projectId as string;
   const project = getProjectById(projectId);
@@ -123,6 +140,10 @@ export default function ProjectDetailPage() {
     setTaskModalOpen(true);
   };
 
+  const handleTaskDrop = async (taskId: string, newStatus: Task['status']) => {
+    await updateTask(taskId, { status: newStatus } as any);
+  };
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
@@ -195,14 +216,32 @@ export default function ProjectDetailPage() {
 
           {/* Task Statistics - NEW */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="text-xl font-bold tracking-tight">
                 Task Statistics
               </h2>
-              <Button onClick={handleCreateTaskClick} size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                New Task
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={taskViewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTaskViewMode('list')}
+                  className="border-white/10"
+                >
+                  <LayoutList className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={taskViewMode === 'board' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTaskViewMode('board')}
+                  className="border-white/10"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button onClick={handleCreateTaskClick} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Task
+                </Button>
+              </div>
             </div>
             <TaskStats
               total={taskStats.total}
@@ -215,12 +254,20 @@ export default function ProjectDetailPage() {
             />
           </div>
 
-          {/* Task List - NEW */}
+          {/* Task View - List or Board */}
           <div className="lg:col-span-3 space-y-4">
-            <TaskList
-              tasks={tasks}
-              onTaskClick={handleOpenTaskDetail}
-            />
+            {taskViewMode === 'list' ? (
+              <TaskList
+                tasks={tasks}
+                onTaskClick={handleOpenTaskDetail}
+              />
+            ) : (
+              <TaskBoard
+                tasks={tasks}
+                onTaskClick={handleOpenTaskDetail}
+                onTaskDrop={handleTaskDrop}
+              />
+            )}
           </div>
 
           {/* Mission Timeline */}
