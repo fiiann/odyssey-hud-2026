@@ -6,6 +6,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useProfile } from '@/hooks/use-profile';
 import { useMissions } from '@/hooks/use-missions';
 import { useProjects } from '@/hooks/use-projects';
+import { useTasks } from '@/hooks/use-tasks';
+import { Task } from '@/lib/types';
+import { TASK_STATUS, TASK_PRIORITY } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -45,16 +48,19 @@ export default function DashboardPage() {
   const { profile, isLoading: profileLoading, levelUpModal } = useProfile();
   const { missions, isLoading: missionsLoading, createMission, deleteMission } = useMissions();
   const { projects, isLoading: projectsLoading, createProject, updateProject, deleteProject } = useProjects();
+  const { tasks, getTasksByProject } = useTasks();
 
   const [missionModalOpen, setMissionModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedProjectForMission, setSelectedProjectForMission] = useState<string>('');
 
   const {
     register: registerMission,
     handleSubmit: handleSubmitMission,
     formState: { errors: missionErrors, isSubmitting: missionSubmitting },
     reset: resetMission,
+    watch: watchMission,
   } = useForm<MissionFormValues>({
     resolver: zodResolver(missionSchema),
   });
@@ -89,10 +95,12 @@ export default function DashboardPage() {
       description: data.description,
       durationMin: data.duration_min,
       projectId: data.project_id,
+      taskId: data.task_id, // NEW: Optional link to task
     });
     if (result.success) {
       setMissionModalOpen(false);
       resetMission();
+      setSelectedProjectForMission('');
     }
   };
 
@@ -121,6 +129,12 @@ export default function DashboardPage() {
 
   const xpProgress = profile ? getXpProgress(profile.totalXp) : null;
   const projectStats = getProjectExecutionStats(missions, projects);
+
+  // Watch selected project and filter tasks
+  const selectedProjectId = watchMission('project_id');
+  const filteredTasks = selectedProjectId
+    ? tasks.filter(t => t.projectId === selectedProjectId && t.status !== 'COMPLETED' && t.status !== 'CANCELLED')
+    : [];
 
   if (authLoading || profileLoading) {
     return (
@@ -421,6 +435,32 @@ export default function DashboardPage() {
               {missionErrors.project_id && <p className="text-[10px] font-bold text-destructive uppercase mt-1">{missionErrors.project_id.message}</p>}
               {projects.length === 0 && <p className="text-[10px] font-bold text-amber-500 uppercase mt-1">Please create a project first</p>}
             </div>
+
+            {/* NEW: Task Linking */}
+            {selectedProjectId && filteredTasks.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Link to Task (Optional)</Label>
+                <select
+                  className="flex h-12 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground focus-visible:ring-primary"
+                  {...registerMission('task_id')}
+                >
+                  <option value="">No task linked</option>
+                  {filteredTasks.map(task => {
+                    const statusStyle = TASK_STATUS[task.status];
+                    const priorityStyle = TASK_PRIORITY[task.priority];
+                    return (
+                      <option key={task.taskId} value={task.taskId}>
+                        [{task.priority}] {task.title} ({task.status})
+                      </option>
+                    );
+                  })}
+                </select>
+                <p className="text-[10px] text-muted-foreground">
+                  Link this mission to a task to auto-update task time tracking
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Mission Task</Label>
               <Input

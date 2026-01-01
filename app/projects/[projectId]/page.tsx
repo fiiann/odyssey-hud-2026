@@ -231,6 +231,7 @@ export default function ProjectDetailPage() {
             <MissionTimeline
               missions={projectMissions}
               onDeleteMission={handleDeleteMission}
+              tasks={tasks}
             />
           </div>
         </div>

@@ -3,21 +3,24 @@
 import { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollText } from 'lucide-react';
-import { Mission } from '@/lib/types';
+import { ScrollText, Link2 } from 'lucide-react';
+import { Mission, Task } from '@/lib/types';
 import { getRelativeTime } from '@/lib/calculations';
+import { TASK_STATUS } from '@/lib/constants';
 
 interface MissionTimelineProps {
   missions: Mission[];
   onDeleteMission: (missionId: string) => void;
+  tasks?: Task[]; // NEW: Pass tasks for linking
 }
 
 interface MissionCardProps {
   mission: Mission;
   onDeleteMission: (missionId: string) => void;
+  linkedTask?: Task; // NEW: Show linked task
 }
 
-const MissionCard = memo(({ mission, onDeleteMission }: MissionCardProps) => {
+const MissionCard = memo(({ mission, onDeleteMission, linkedTask }: MissionCardProps) => {
   const timeOfDay = new Date(mission.createdAt).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -39,6 +42,20 @@ const MissionCard = memo(({ mission, onDeleteMission }: MissionCardProps) => {
         </button>
         <div className="space-y-2">
           <h4 className="font-bold text-sm tracking-tight pr-6">{mission.title}</h4>
+
+          {/* NEW: Linked Task Badge */}
+          {linkedTask && (
+            <div className="flex items-center gap-2">
+              <Link2 className="h-3 w-3 text-primary" />
+              <Badge variant="outline" className="text-[9px] font-bold border-primary/20 bg-primary/10 text-primary">
+                {linkedTask.title}
+              </Badge>
+              <Badge variant="outline" className="text-[9px] font-bold border-white/10">
+                {linkedTask.status}
+              </Badge>
+            </div>
+          )}
+
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
             <Badge variant="secondary" className="h-5 px-2 text-[9px] font-bold">
               {mission.durationMin}M
@@ -53,7 +70,7 @@ const MissionCard = memo(({ mission, onDeleteMission }: MissionCardProps) => {
 
 MissionCard.displayName = 'MissionCard';
 
-export function MissionTimeline({ missions, onDeleteMission }: MissionTimelineProps) {
+export function MissionTimeline({ missions, onDeleteMission, tasks = [] }: MissionTimelineProps) {
   // Group missions by date
   const groupedMissions = missions.reduce((acc, mission) => {
     const date = new Date(mission.createdAt).toDateString();
@@ -103,13 +120,18 @@ export function MissionTimeline({ missions, onDeleteMission }: MissionTimelinePr
           <div className="space-y-4 relative">
             {groupedMissions[date]
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .map((mission) => (
-                <MissionCard
-                  key={mission.missionId}
-                  mission={mission}
-                  onDeleteMission={onDeleteMission}
-                />
-              ))}
+              .map((mission) => {
+                // NEW: Find linked task
+                const linkedTask = mission.taskId ? tasks.find(t => t.taskId === mission.taskId) : undefined;
+                return (
+                  <MissionCard
+                    key={mission.missionId}
+                    mission={mission}
+                    onDeleteMission={onDeleteMission}
+                    linkedTask={linkedTask}
+                  />
+                );
+              })}
           </div>
         </div>
       ))}
