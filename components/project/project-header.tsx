@@ -8,6 +8,7 @@ import { ExternalLink, Rocket, Pencil, Trash2 } from 'lucide-react';
 import { Project } from '@/lib/types';
 import { formatDuration } from '@/lib/calculations';
 import { PROJECT_STATUS } from '@/lib/constants';
+import { useTerminology } from '@/lib/terminology';
 
 interface ProjectHeaderProps {
   project: Project;
@@ -16,9 +17,11 @@ interface ProjectHeaderProps {
   avgDuration: number;
   onEdit: () => void;
   onDelete: () => void;
+  mode?: 'PROFESSIONAL' | 'ODYSSEY';
 }
 
-export function ProjectHeader({ project, totalMissions, totalDuration, avgDuration, onEdit, onDelete }: ProjectHeaderProps) {
+export function ProjectHeader({ project, totalMissions, totalDuration, avgDuration, onEdit, onDelete, mode = 'PROFESSIONAL' }: ProjectHeaderProps) {
+  const t = useTerminology(mode);
   const statusInfo = PROJECT_STATUS[project.status as keyof typeof PROJECT_STATUS];
 
   return (

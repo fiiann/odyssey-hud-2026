@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useProjects } from '@/hooks/use-projects';
 import { useMissions } from '@/hooks/use-missions';
 import { useTasks } from '@/hooks/use-tasks';
+import { useTerminologyMode } from '@/hooks/use-terminology-mode';
 import { Task } from '@/lib/types';
 import { ProjectHeader } from '@/components/project/project-header';
 import { ProjectStatsCards } from '@/components/project/project-stats-cards';
@@ -16,6 +17,7 @@ import { TaskBoard } from '@/components/task/task-board';
 import { TaskFilters, TaskFilters as TaskFiltersType } from '@/components/task/task-filters';
 import { TaskModal } from '@/components/task/task-modal';
 import { TaskDetailModal } from '@/components/task/task-detail-modal';
+import { TerminologyToggle } from '@/components/terminology/terminology-toggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sword, Loader2, ArrowLeft, Plus, LayoutList, LayoutGrid } from 'lucide-react';
@@ -34,6 +36,7 @@ export default function ProjectDetailPage() {
   const { projects, getProjectById, updateProject, deleteProject } = useProjects();
   const { missions, deleteMission } = useMissions();
   const { tasks, taskStats, createTask, updateTask, deleteTask, getTaskById } = useTasks(params.projectId as string);
+  const { mode: terminologyMode, setMode: setTerminologyMode } = useTerminologyMode();
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -224,7 +227,7 @@ export default function ProjectDetailPage() {
       {/* Navbar */}
       <nav className="sticky top-0 z-40 border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
                 <Sword className="h-5 w-5 text-primary" />
@@ -234,10 +237,17 @@ export default function ProjectDetailPage() {
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Sector Detail</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
+
+            <div className="flex items-center gap-3">
+              <TerminologyToggle
+                currentMode={terminologyMode}
+                onModeChange={setTerminologyMode}
+              />
+              <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
@@ -250,6 +260,7 @@ export default function ProjectDetailPage() {
           avgDuration={avgDuration}
           onEdit={handleEditProject}
           onDelete={handleDeleteProject}
+          mode={terminologyMode}
         />
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -308,6 +319,7 @@ export default function ProjectDetailPage() {
             <TaskFilters
               filters={taskFilters}
               onFiltersChange={setTaskFilters}
+              mode={terminologyMode}
             />
 
             {/* Task List or Board */}
@@ -315,12 +327,14 @@ export default function ProjectDetailPage() {
               <TaskList
                 tasks={filteredTasks}
                 onTaskClick={handleOpenTaskDetail}
+                mode={terminologyMode}
               />
             ) : (
               <TaskBoard
                 tasks={filteredTasks}
                 onTaskClick={handleOpenTaskDetail}
                 onTaskDrop={handleTaskDrop}
+                mode={terminologyMode}
               />
             )}
 
@@ -344,6 +358,7 @@ export default function ProjectDetailPage() {
               missions={projectMissions}
               onDeleteMission={handleDeleteMission}
               tasks={tasks}
+              mode={terminologyMode}
             />
           </div>
         </div>
