@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ interface ProjectsGridProps {
   onInitiateProject: () => void;
 }
 
-export function ProjectsGrid({ projects, isLoading, onInitiateProject }: ProjectsGridProps) {
+export const ProjectsGrid = memo(function ProjectsGrid({ projects, isLoading, onInitiateProject }: ProjectsGridProps) {
   const router = useRouter();
 
   const getStatusIcon = (status: string) => {
@@ -31,8 +32,8 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
 
   if (isLoading) {
     return (
-      <div className="grid sm:grid-cols-2 gap-4">
-        {[1, 2].map(i => <div key={i} className="h-48 animate-pulse rounded-2xl bg-white/5" />)}
+      <div className="grid sm:grid-cols-2 gap-4" aria-label="Loading projects" aria-busy="true">
+        {[1, 2].map(i => <div key={i} className="h-48 animate-pulse rounded-2xl bg-white/5" aria-hidden="true" />)}
       </div>
     );
   }
@@ -41,7 +42,7 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
     return (
       <Card className="border-dashed border-white/10 bg-transparent py-12">
         <CardContent className="flex flex-col items-center text-center">
-          <LayoutGrid className="w-12 h-12 text-muted-foreground/20 mb-4" />
+          <LayoutGrid className="w-12 h-12 text-muted-foreground/20 mb-4" aria-hidden="true" />
           <p className="text-muted-foreground font-medium">No projects initiated</p>
           <p className="text-sm text-muted-foreground/60 max-w-xs mb-6">
             You need at least one project to start logging missions.
@@ -55,7 +56,7 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
   }
 
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
+    <div className="grid sm:grid-cols-2 gap-4" role="list" aria-label="Projects list">
       {projects.map((project) => {
         const StatusIcon = getStatusIcon(project.status);
         const statusInfo = PROJECT_STATUS[project.status as keyof typeof PROJECT_STATUS];
@@ -64,6 +65,9 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
             key={project.projectId}
             className="border-white/5 bg-[#121214] hover:bg-[#18181b] hover:border-primary/30 transition-all group cursor-pointer"
             onClick={() => router.push(`/projects/${project.projectId}`)}
+            role="listitem"
+            tabIndex={0}
+            aria-label={`Project: ${project.title}, Status: ${statusInfo.label}, Progress: ${project.progress}%, Time logged: ${formatDuration(project.totalMinutes)}`}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between mb-1">
@@ -71,7 +75,7 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
                   variant="outline"
                   className={`text-[10px] uppercase font-bold tracking-tighter bg-${statusInfo.color}-500/10 text-${statusInfo.color}-500 border-${statusInfo.color}-500/20`}
                 >
-                  <StatusIcon className="w-2.5 h-2.5 mr-1" />
+                  <StatusIcon className="w-2.5 h-2.5 mr-1" aria-hidden="true" />
                   {statusInfo.label}
                 </Badge>
                 <span className="text-[10px] font-mono text-muted-foreground uppercase">
@@ -88,16 +92,16 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
                 <div className="flex items-center justify-between text-[11px] font-bold uppercase text-muted-foreground">
                   <span>Status: {project.progress}% Complete</span>
                 </div>
-                <Progress value={project.progress} className="h-1.5" />
+                <Progress value={project.progress} className="h-1.5" aria-label={`Project completion: ${project.progress}%`} />
                 <div className="flex items-center gap-2 pt-2">
                   {project.repoUrl && (
                     <Badge variant="secondary" className="h-5 px-1.5 text-[9px]">
-                      <ExternalLink className="w-2 h-2 mr-1" /> REPO
+                      <ExternalLink className="w-2 h-2 mr-1" aria-hidden="true" /> REPO
                     </Badge>
                   )}
                   {project.deployUrl && (
                     <Badge variant="secondary" className="h-5 px-1.5 text-[9px]">
-                      <ExternalLink className="w-2 h-2 mr-1" /> LIVE
+                      <ExternalLink className="w-2 h-2 mr-1" aria-hidden="true" /> LIVE
                     </Badge>
                   )}
                 </div>
@@ -108,4 +112,4 @@ export function ProjectsGrid({ projects, isLoading, onInitiateProject }: Project
       })}
     </div>
   );
-}
+});

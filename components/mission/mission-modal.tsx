@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -61,6 +61,7 @@ export function MissionModal({
 }: MissionModalProps) {
   const t = useTerminology(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const titleId = useId();
 
   const {
     register,
@@ -101,13 +102,20 @@ export function MissionModal({
     }
   };
 
+  const getDialogTitle = () => {
+    if (projectName) {
+      return `${t.logTime} - ${projectName}`;
+    }
+    return t.logTime;
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} ariaLabelledby={titleId}>
       <DialogContent className="sm:max-w-[500px] bg-[#121214] border-white/10">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            {t.logTime}
+          <DialogTitle id={titleId} className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" aria-hidden="true" />
+            <span>{t.logTime}</span>
             {projectName && (
               <span className="text-sm font-normal text-muted-foreground">
                 (auto-assigned to: {projectName})
@@ -165,7 +173,7 @@ export function MissionModal({
                 onValueChange={(value) => setValue('projectId', value)}
                 value={watch('projectId')}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-white/5 border-white/10" aria-label={mode === 'ODYSSEY' ? 'Select a sector' : 'Select a project'}>
                   <SelectValue placeholder={mode === 'ODYSSEY' ? 'Select a sector...' : 'Select a project...'} />
                 </SelectTrigger>
                 <SelectContent className="bg-[#121214] border-white/10">
@@ -192,7 +200,7 @@ export function MissionModal({
                 onValueChange={(value) => setValue('taskId', value)}
                 value={watch('taskId')}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-white/5 border-white/10" aria-label={mode === 'ODYSSEY' ? 'Select a quest' : 'Select a task'}>
                   <SelectValue placeholder={mode === 'ODYSSEY' ? 'Select a quest...' : 'Select a task...'} />
                 </SelectTrigger>
                 <SelectContent className="bg-[#121214] border-white/10">
@@ -215,7 +223,7 @@ export function MissionModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="durationMin">
-                {mode === 'ODYSSEY' ? 'Duration (minutes)' : 'Duration (minutes)'} *
+                Duration (minutes) *
               </Label>
               <Input
                 id="durationMin"
@@ -235,7 +243,7 @@ export function MissionModal({
                 onValueChange={(value) => setValue('category', value)}
                 value={watch('category')}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-white/5 border-white/10" aria-label="Select category">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent className="bg-[#121214] border-white/10">
@@ -255,10 +263,11 @@ export function MissionModal({
               variant="outline"
               onClick={() => onOpenChange?.(false)}
               className="border-white/10"
+              aria-label={t.cancel}
             >
               {t.cancel}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} aria-label={isSubmitting ? 'Saving mission...' : t.save}>
               {isSubmitting ? 'Saving...' : t.save}
             </Button>
           </DialogFooter>

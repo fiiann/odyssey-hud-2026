@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -46,6 +46,7 @@ export function TaskModal({
   const t = useTerminology(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tags, setTags] = useState<string[]>(task?.tags || []);
+  const titleId = useId();
 
   const isEditing = !!task;
 
@@ -106,10 +107,10 @@ export function TaskModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} ariaLabelledby={titleId}>
       <DialogContent className="bg-[#0c0c0e] border-white/10 text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">
+          <DialogTitle id={titleId} className="text-2xl font-black italic uppercase tracking-tighter">
             {isEditing ? t.editTask : t.createTask}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -126,10 +127,11 @@ export function TaskModal({
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 pt-4">
           {/* Title */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+            <Label htmlFor="task-title" className="text-[10px] font-black uppercase tracking-widest opacity-50">
               {t.forms.taskTitle} *
             </Label>
             <Input
+              id="task-title"
               {...register('title')}
               placeholder={mode === 'ODYSSEY' ? 'Mission objective...' : 'Task title...'}
               className="bg-white/5 border-white/10 font-bold"
@@ -141,10 +143,11 @@ export function TaskModal({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+            <Label htmlFor="task-description" className="text-[10px] font-black uppercase tracking-widest opacity-50">
               {t.forms.description}
             </Label>
             <Textarea
+              id="task-description"
               {...register('description')}
               placeholder={mode === 'ODYSSEY' ? 'Mission brief...' : 'Description...'}
               className="bg-white/5 border-white/10 min-h-[80px]"
@@ -157,12 +160,13 @@ export function TaskModal({
           {/* Status & Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-status" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.status}
               </Label>
               <select
+                id="task-status"
                 {...register('status')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="TODO">{t.status.TODO}</option>
                 <option value="IN_PROGRESS">{t.status.IN_PROGRESS}</option>
@@ -172,12 +176,13 @@ export function TaskModal({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-priority" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.priority}
               </Label>
               <select
+                id="task-priority"
                 {...register('priority')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="LOW">{t.priority.LOW}</option>
                 <option value="MEDIUM">{t.priority.MEDIUM}</option>
@@ -190,12 +195,13 @@ export function TaskModal({
           {/* Category & Project */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-category" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.category}
               </Label>
               <select
+                id="task-category"
                 {...register('category')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">None</option>
                 {TASK_CATEGORY.map((cat) => (
@@ -207,12 +213,13 @@ export function TaskModal({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-project" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.project}
               </Label>
               <select
+                id="task-project"
                 {...register('project_id')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={!!task}
               >
                 {projects.map((project) => (
@@ -230,11 +237,12 @@ export function TaskModal({
           {/* Estimated Time & Due Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-estimated" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.estimatedTime}
               </Label>
               <div className="flex items-center gap-2">
                 <Input
+                  id="task-estimated"
                   type="number"
                   {...register('estimated_min', { valueAsNumber: true })}
                   placeholder="60"
@@ -248,10 +256,11 @@ export function TaskModal({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+              <Label htmlFor="task-due-date" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.dueDate}
               </Label>
               <Input
+                id="task-due-date"
                 type="date"
                 {...register('due_date')}
                 className="bg-white/5 border-white/10"
@@ -261,21 +270,23 @@ export function TaskModal({
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+            <Label htmlFor="task-tags-input" className="text-[10px] font-black uppercase tracking-widest opacity-50">
               {t.forms.tags}
             </Label>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-2 mb-2" role="list" aria-label="Task tags">
               {tags.map((tag) => (
                 <Badge
                   key={tag}
                   variant="secondary"
                   className="px-2 py-1 text-xs"
+                  role="listitem"
                 >
                   #{tag}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                     className="ml-1 hover:text-destructive"
+                    aria-label={`Remove tag: ${tag}`}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -284,6 +295,7 @@ export function TaskModal({
             </div>
             <div className="flex gap-2">
               <Input
+                id="task-tags-input"
                 placeholder="Add tag and press Enter"
                 className="bg-white/5 border-white/10 text-sm"
                 onKeyDown={(e) => {
@@ -307,6 +319,7 @@ export function TaskModal({
               variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              aria-label={t.cancel}
             >
               {t.cancel}
             </Button>
@@ -314,10 +327,11 @@ export function TaskModal({
               type="submit"
               disabled={isSubmitting}
               className="bg-primary font-black uppercase italic tracking-tighter"
+              aria-label={isSubmitting ? 'Saving task...' : (isEditing ? t.save : t.createTask)}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                   Saving...
                 </>
               ) : (

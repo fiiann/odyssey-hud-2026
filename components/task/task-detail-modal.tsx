@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { Task, Mission } from '@/lib/types';
 import { useTerminology } from '@/lib/terminology';
 import { TASK_STATUS, TASK_PRIORITY } from '@/lib/constants';
@@ -40,6 +41,7 @@ export function TaskDetailModal({
   mode = 'PROFESSIONAL',
 }: TaskDetailModalProps) {
   const t = useTerminology(mode);
+  const titleId = useId();
 
   if (!task) return null;
 
@@ -68,12 +70,12 @@ export function TaskDetailModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} ariaLabelledby={titleId}>
       <DialogContent className="bg-[#0c0c0e] border-white/10 text-foreground max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <DialogTitle className="text-2xl font-bold pr-8">
+              <DialogTitle id={titleId} className="text-2xl font-bold pr-8">
                 {task.title}
               </DialogTitle>
               <DialogDescription className="flex items-center gap-2 mt-2">
@@ -122,8 +124,9 @@ export function TaskDetailModal({
                   variant="outline"
                   onClick={onEdit}
                   className="border-white/10"
+                  aria-label={`Edit task: ${task.title}`}
                 >
-                  <Edit className="h-4 w-4 mr-1" />
+                  <Edit className="h-4 w-4 mr-1" aria-hidden="true" />
                   Edit
                 </Button>
               )}
@@ -133,8 +136,9 @@ export function TaskDetailModal({
                   variant="outline"
                   onClick={onDelete}
                   className="border-red-500/20 text-red-500 hover:bg-red-500/10"
+                  aria-label={`Delete task: ${task.title}`}
                 >
-                  <Trash2 className="h-4 w-4 mr-1" />
+                  <Trash2 className="h-4 w-4 mr-1" aria-hidden="true" />
                   Delete
                 </Button>
               )}
@@ -161,12 +165,12 @@ export function TaskDetailModal({
             <Card className="border-white/5 bg-[#121214]">
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-purple-500" />
+                  <TrendingUp className="h-4 w-4 text-purple-500" aria-hidden="true" />
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
                     {t.forms.estimatedTime}
                   </p>
                 </div>
-                <p className="text-xl font-bold">
+                <p className="text-xl font-bold" aria-label={`Estimated time: ${task.estimatedMin ? formatMinutes(task.estimatedMin) : 'Not set'}`}>
                   {task.estimatedMin ? formatMinutes(task.estimatedMin) : '—'}
                 </p>
               </div>
@@ -176,12 +180,12 @@ export function TaskDetailModal({
             <Card className="border-white/5 bg-[#121214]">
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-orange-500" />
+                  <Clock className="h-4 w-4 text-orange-500" aria-hidden="true" />
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
                     {t.forms.actualTime}
                   </p>
                 </div>
-                <p className="text-xl font-bold">
+                <p className="text-xl font-bold" aria-label={`Actual time spent: ${task.actualMin !== undefined ? formatMinutes(task.actualMin) : '0 minutes'}`}>
                   {task.actualMin !== undefined ? formatMinutes(task.actualMin) : '0m'}
                 </p>
               </div>
@@ -197,7 +201,7 @@ export function TaskDetailModal({
                       Math.abs(variance!) <= 20 ? "text-green-500" :
                       Math.abs(variance!) <= 50 ? "text-yellow-500" :
                       "text-red-500"
-                    )} />
+                    )} aria-hidden="true" />
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
                       {t.stats.variance}
                     </p>
@@ -207,7 +211,7 @@ export function TaskDetailModal({
                     Math.abs(variance!) <= 20 ? "text-green-500" :
                     Math.abs(variance!) <= 50 ? "text-yellow-500" :
                     "text-red-500"
-                  )}>
+                  )} aria-label={`Time variance: ${variance! > 0 ? '+' : ''}${variance!.toFixed(1)}%`}>
                     {variance! > 0 ? '+' : ''}{variance!.toFixed(1)}%
                   </p>
                 </div>
@@ -221,7 +225,7 @@ export function TaskDetailModal({
             {task.dueDate && (
               <div className="space-y-2">
                 <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <Calendar className="h-4 w-4" aria-hidden="true" />
                   {t.forms.dueDate}
                 </h4>
                 <p className="text-sm">
@@ -236,9 +240,9 @@ export function TaskDetailModal({
                 <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">
                   {t.forms.tags}
                 </h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" role="list" aria-label="Task tags">
                   {task.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
+                    <Badge key={tag} variant="secondary" className="text-xs" role="listitem">
                       #{tag}
                     </Badge>
                   ))}
@@ -250,16 +254,17 @@ export function TaskDetailModal({
           {/* Linked Missions */}
           <div className="space-y-3">
             <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50 flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-4 w-4" aria-hidden="true" />
               {t.missions} ({linkedMissions.length})
             </h4>
 
             {linkedMissions.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2" role="list" aria-label="Linked missions">
                 {linkedMissions.map((mission) => (
                   <Card
                     key={mission.missionId}
                     className="border-white/5 bg-[#121214] hover:bg-[#18181b] transition-colors"
+                    role="listitem"
                   >
                     <div className="p-3 flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
@@ -278,6 +283,7 @@ export function TaskDetailModal({
                           variant="ghost"
                           onClick={() => onDeleteMission(mission.missionId)}
                           className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500"
+                          aria-label={`Delete mission: ${mission.title}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -287,7 +293,7 @@ export function TaskDetailModal({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 px-4 border border-dashed border-white/10 rounded-lg bg-[#0a0a0c]">
+              <div className="text-center py-8 px-4 border border-dashed border-white/10 rounded-lg bg-[#0a0a0c]" role="status" aria-live="polite">
                 <p className="text-sm text-muted-foreground">
                   {mode === 'ODYSSEY'
                     ? 'No executions recorded for this mission'
@@ -322,6 +328,7 @@ export function TaskDetailModal({
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
+            aria-label={t.close}
           >
             {t.close}
           </Button>
