@@ -18,9 +18,10 @@ import { TaskFilters, TaskFilters as TaskFiltersType } from '@/components/task/t
 import { TaskModal } from '@/components/task/task-modal';
 import { TaskDetailModal } from '@/components/task/task-detail-modal';
 import { TerminologyToggle } from '@/components/terminology/terminology-toggle';
+import { MissionModal } from '@/components/mission/mission-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sword, Loader2, ArrowLeft, Plus, LayoutList, LayoutGrid } from 'lucide-react';
+import { Sword, Loader2, ArrowLeft, Plus, LayoutList, LayoutGrid, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,7 +35,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { projects, getProjectById, updateProject, deleteProject } = useProjects();
-  const { missions, deleteMission } = useMissions();
+  const { missions, deleteMission, createMission } = useMissions();
   const { tasks, taskStats, createTask, updateTask, deleteTask, getTaskById } = useTasks(params.projectId as string);
   const { mode: terminologyMode, setMode: setTerminologyMode } = useTerminologyMode();
 
@@ -46,6 +47,9 @@ export default function ProjectDetailPage() {
   const [taskDetailModalOpen, setTaskDetailModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isEditingTask, setIsEditingTask] = useState(false);
+
+  // Mission modals
+  const [missionModalOpen, setMissionModalOpen] = useState(false);
 
   // Task view mode
   const [taskViewMode, setTaskViewMode] = useState<'list' | 'board'>(() => {
@@ -195,6 +199,19 @@ export default function ProjectDetailPage() {
     await updateTask(taskId, { status: newStatus } as any);
   };
 
+  // Mission handlers
+  const handleCreateMission = async (data: any) => {
+    // Auto-assign the project ID
+    await createMission({
+      ...data,
+      projectId: projectId,
+    });
+  };
+
+  const handleRecordBattleClick = () => {
+    setMissionModalOpen(true);
+  };
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
@@ -298,7 +315,11 @@ export default function ProjectDetailPage() {
                 </Button>
                 <Button onClick={handleCreateTaskClick} size="sm">
                   <Plus className="w-4 h-4 mr-2" />
-                  New Task
+                  {terminologyMode === 'ODYSSEY' ? 'Accept Quest' : 'New Task'}
+                </Button>
+                <Button onClick={handleRecordBattleClick} size="sm" variant="secondary">
+                  <Clock className="w-4 h-4 mr-2" />
+                  {terminologyMode === 'ODYSSEY' ? 'Record Battle' : 'Log Time'}
                 </Button>
               </div>
             </div>
@@ -383,6 +404,17 @@ export default function ProjectDetailPage() {
         onEdit={handleEditTaskClick}
         onDelete={handleDeleteTask}
         onDeleteMission={handleDeleteMission}
+      />
+
+      {/* Mission/Battle Log Modal */}
+      <MissionModal
+        open={missionModalOpen}
+        onOpenChange={setMissionModalOpen}
+        onSubmit={handleCreateMission}
+        projectId={projectId}
+        projectName={project?.title}
+        tasks={tasks}
+        mode={terminologyMode}
       />
 
       {/* Edit Project Modal */}
