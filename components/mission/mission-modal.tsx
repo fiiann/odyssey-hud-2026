@@ -159,13 +159,12 @@ export function MissionModal({
               </Label>
               <Select
                 onValueChange={(value) => setValue('taskId', value)}
-                defaultValue=""
+                value={watch('taskId')}
               >
                 <SelectTrigger className="bg-white/5 border-white/10">
                   <SelectValue placeholder={mode === 'ODYSSEY' ? 'Select a quest...' : 'Select a task...'} />
                 </SelectTrigger>
                 <SelectContent className="bg-[#121214] border-white/10">
-                  <SelectItem value="">None</SelectItem>
                   {tasks.map((task) => (
                     <SelectItem key={task.taskId} value={task.taskId}>
                       {task.title} ({task.status})
@@ -203,13 +202,12 @@ export function MissionModal({
               <Label htmlFor="category">{t.forms.category}</Label>
               <Select
                 onValueChange={(value) => setValue('category', value)}
-                defaultValue=""
+                value={watch('category')}
               >
                 <SelectTrigger className="bg-white/5 border-white/10">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent className="bg-[#121214] border-white/10">
-                  <SelectItem value="">None</SelectItem>
                   {TASK_CATEGORY.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {t.category[cat as keyof typeof t.category] || cat}

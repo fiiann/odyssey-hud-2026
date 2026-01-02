@@ -19,8 +19,11 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Toaster } from '@/components/ui/toaster';
 import { PROJECT_STATUS } from '@/lib/constants';
+import { MissionModal } from '@/components/mission/mission-modal';
+import { TerminologyToggle } from '@/components/terminology/terminology-toggle';
+import { useTerminologyMode } from '@/hooks/use-terminology-mode';
 import { getProjectExecutionStats, formatDuration, getRelativeTime, getXpProgress } from '@/lib/calculations';
-import { missionSchema, MissionFormValues, projectSchema, ProjectFormValues } from '@/lib/validations';
+import { projectSchema, ProjectFormValues, MissionFormValues } from '@/lib/validations';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -49,21 +52,11 @@ export default function DashboardPage() {
   const { missions, isLoading: missionsLoading, createMission, deleteMission } = useMissions();
   const { projects, isLoading: projectsLoading, createProject, updateProject, deleteProject } = useProjects();
   const { tasks } = useTasks();
+  const { mode: terminologyMode, setMode: setTerminologyMode } = useTerminologyMode();
 
   const [missionModalOpen, setMissionModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [selectedProjectForMission, setSelectedProjectForMission] = useState<string>('');
-
-  const {
-    register: registerMission,
-    handleSubmit: handleSubmitMission,
-    formState: { errors: missionErrors, isSubmitting: missionSubmitting },
-    reset: resetMission,
-    watch: watchMission,
-  } = useForm<MissionFormValues>({
-    resolver: zodResolver(missionSchema),
-  });
 
   const {
     register: registerProject,
@@ -90,18 +83,15 @@ export default function DashboardPage() {
   };
 
   const handleCreateMission = async (data: MissionFormValues) => {
-    const result = await createMission({
+    await createMission({
       title: data.title,
       description: data.description,
-      durationMin: data.duration_min,
-      projectId: data.project_id,
-      taskId: data.task_id, // NEW: Optional link to task
+      durationMin: data.durationMin,
+      projectId: data.projectId || '',
+      taskId: data.taskId,
+      category: data.category,
     });
-    if (result.success) {
-      setMissionModalOpen(false);
-      resetMission();
-      setSelectedProjectForMission('');
-    }
+    setMissionModalOpen(false);
   };
 
   const handleCreateProject = async (data: ProjectFormValues) => {
@@ -130,12 +120,6 @@ export default function DashboardPage() {
   const xpProgress = profile ? getXpProgress(profile.totalXp) : null;
   const projectStats = getProjectExecutionStats(missions, projects);
 
-  // Watch selected project and filter tasks
-  const selectedProjectId = watchMission('project_id');
-  const filteredTasks = selectedProjectId
-    ? tasks.filter(t => t.projectId === selectedProjectId && t.status !== 'COMPLETED' && t.status !== 'CANCELLED')
-    : [];
-
   if (authLoading || profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
@@ -162,6 +146,10 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center gap-6">
+              <TerminologyToggle
+                currentMode={terminologyMode}
+                onModeChange={setTerminologyMode}
+              />
               <div className="text-right hidden xs:block">
                 <p className="text-sm font-bold">{profile.username}</p>
                 <p className="text-[10px] font-mono uppercase text-primary">Rank {profile.currentLevel} Senior Architect</p>
@@ -316,11 +304,13 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-bold tracking-tight">Mission History</h2>
+                <h2 className="text-xl font-bold tracking-tight">
+                  {terminologyMode === 'ODYSSEY' ? 'Battle Archives' : 'Mission History'}
+                </h2>
               </div>
               <Button size="sm" onClick={() => setMissionModalOpen(true)} className="rounded-full px-4 h-8 bg-primary hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]">
                 <Plus className="w-3 h-3 mr-2" />
-                Log Mission
+                {terminologyMode === 'ODYSSEY' ? 'Record Battle' : 'Log Time'}
               </Button>
             </div>
 
@@ -413,82 +403,14 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Log Mission Modal */}
-      <Dialog open={missionModalOpen} onOpenChange={setMissionModalOpen}>
-        <DialogContent className="bg-[#0c0c0e] border-white/10">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Log Building Action</DialogTitle>
-            <DialogDescription className="text-muted-foreground text-sm">Convert your time into execution credits.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmitMission(handleCreateMission)} className="space-y-5 pt-4">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Target Project</Label>
-              <select
-                className="flex h-12 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground focus-visible:ring-primary font-bold"
-                {...registerMission('project_id')}
-              >
-                <option value="" disabled>Select a sector...</option>
-                {projects.map(p => (
-                  <option key={p.projectId} value={p.projectId}>{p.title}</option>
-                ))}
-              </select>
-              {missionErrors.project_id && <p className="text-[10px] font-bold text-destructive uppercase mt-1">{missionErrors.project_id.message}</p>}
-              {projects.length === 0 && <p className="text-[10px] font-bold text-amber-500 uppercase mt-1">Please create a project first</p>}
-            </div>
-
-            {/* NEW: Task Linking */}
-            {selectedProjectId && filteredTasks.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Link to Task (Optional)</Label>
-                <select
-                  className="flex h-12 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground focus-visible:ring-primary"
-                  {...registerMission('task_id')}
-                >
-                  <option value="">No task linked</option>
-                  {filteredTasks.map(task => {
-                    const statusStyle = TASK_STATUS[task.status];
-                    const priorityStyle = TASK_PRIORITY[task.priority];
-                    return (
-                      <option key={task.taskId} value={task.taskId}>
-                        [{task.priority}] {task.title} ({task.status})
-                      </option>
-                    );
-                  })}
-                </select>
-                <p className="text-[10px] text-muted-foreground">
-                  Link this mission to a task to auto-update task time tracking
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Mission Task</Label>
-              <Input
-                className="bg-white/5 border-white/10 h-10 font-medium"
-                placeholder="What exactly did you ship?"
-                {...registerMission('title')}
-              />
-              {missionErrors.title && <p className="text-[10px] font-bold text-destructive uppercase mt-1">{missionErrors.title.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Duration (Minutes)</Label>
-              <Input
-                type="number"
-                className="bg-white/5 border-white/10 h-10 font-mono"
-                placeholder="60"
-                {...registerMission('duration_min', { valueAsNumber: true })}
-              />
-              {missionErrors.duration_min && <p className="text-[10px] font-bold text-destructive uppercase mt-1">{missionErrors.duration_min.message}</p>}
-            </div>
-            <DialogFooter className="pt-2">
-              <Button type="submit" disabled={missionSubmitting || projects.length === 0} className="w-full bg-primary font-black uppercase italic tracking-tighter h-12 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
-                {missionSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Flame className="w-4 h-4 mr-2" />}
-                Log Execution To Log
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Log Time/Battle Modal */}
+      <MissionModal
+        open={missionModalOpen}
+        onOpenChange={setMissionModalOpen}
+        onSubmit={handleCreateMission}
+        tasks={tasks}
+        mode={terminologyMode}
+      />
 
       {/* Edit Project Status Modal */}
       <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
