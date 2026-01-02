@@ -99,27 +99,27 @@ Introduce a **3-tier hierarchy**: **Projects → Tasks → Missions**
 | → Testing | QA | Quality Assurance |
 | → Documentation | Docs | Knowledge Base |
 | **UI Labels** | | |
-| → Create Task | Create Task | Accept Mission |
-| → Edit Task | Edit Task | Modify Mission |
-| → Delete Task | Delete Task | Abort Mission |
+| → Create Task | Create Task | Accept Quest |
+| → Edit Task | Edit Task | Modify Quest |
+| → Delete Task | Delete Task | Abort Quest |
 | → Start Task | Start Task | Deploy to Sector |
-| → Complete Task | Complete Task | Mission Accomplished |
-| → Log Time | Log Time | Record Execution |
+| → Complete Task | Complete Task | Quest Complete |
+| → Log Time | Log Time | Record Battle |
 | → View Stats | View Statistics | Access Intel |
 | → Settings | Settings | Command Center |
 | → Dashboard | Dashboard | War Room |
 | → Search | Search | Scan Database |
 | → Filter | Filter | Filter Intel |
 | **Messages/Feedback** | | |
-| → Task created | Task created successfully | Mission accepted, Architect |
-| → Task updated | Task updated | Mission parameters updated |
-| → Task deleted | Task deleted | Mission terminated |
-| → Time logged | Time entry saved | Execution recorded in archives |
+| → Task created | Task created successfully | Quest accepted, Architect |
+| → Task updated | Task updated | Quest parameters updated |
+| → Task deleted | Task deleted | Quest terminated |
+| → Time logged | Time entry saved | Battle recorded in archives |
 | → Level up | Level up! | Rank increased! Promotion earned! |
 | → Achievement | Achievement unlocked | Badge acquired! |
 | **Empty States** | | |
-| → No tasks | No tasks yet | No active missions, Architect |
-| → All done | All tasks completed | All missions accomplished! Sector secured! |
+| → No tasks | No tasks yet | No active quests, Architect |
+| → All done | All tasks completed | All quests complete! Sector secured! |
 | **Time Periods** | | |
 | → Today | Today | Current cycle |
 | → This week | This week | Current phase |
@@ -175,11 +175,11 @@ export const TERMINOLOGY = {
   },
   ODYSSEY: {
     project: 'Sector',
-    task: 'Mission',
-    timeEntry: 'Execution Log',
-    mission: 'Execution Log',
-    createTask: 'Accept Mission',
-    logTime: 'Record Execution',
+    task: 'Quest',
+    timeEntry: 'Battle Log',
+    mission: 'Battle Log',
+    createTask: 'Accept Quest',
+    logTime: 'Record Battle',
     status: {
       TODO: 'Pending',
       IN_PROGRESS: 'Active',
@@ -436,8 +436,15 @@ Project (1)
 │ └──────────┴──────────┴──────────┴──────────┘              │
 │ ⏱️  Time Tracking                                           │
 │ Estimated: 42h  |  Actual: 38h  |  Remaining: ~4h          │
+│                                                               │
+│ [📝 Accept Quest]  [⏱️  Record Battle]  [⚙️  Sector Settings]│
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Action Buttons:**
+- **Accept Quest** (Professional: Create Task): Opens task creation modal
+- **Record Battle** (Professional: Log Time): Opens battle log modal with project auto-assigned
+- **Sector Settings** (Professional: Project Settings): Edit project details
 
 #### B. Task Board View (NEW - Kanban)
 ```
@@ -568,14 +575,22 @@ Project (1)
 
 **Edit Mode:** Same form with pre-filled data + "Delete" button
 
-### 4. Log Mission Modal (Enhanced)
+### 4. Log Mission/Battle Log Modal (Enhanced)
 
 **Existing:** Linked only to project
-**NEW:** Link to task (optional)
+**NEW:** Link to task (optional) + Auto-assign project when opened from project detail page
+
+**Professional Mode:** Log Time Entry
+**Odyssey Mode:** Record Battle
+
+**Key Changes:**
+- When opened from project detail page via "Record Battle" button, project is **automatically assigned** (no project selection needed)
+- User only needs to provide: Title, Duration, and optionally link to a Quest
+- This streamlines the workflow for quick logging
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ ⏱️  Log Mission Execution                               [×]         │
+│ ⏱️  Record Battle (auto-assigned to: E-Commerce Platform) [×]     │
 │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │                                                                     │
 │ 📌 What did you work on? *                                         │
@@ -583,16 +598,16 @@ Project (1)
 │ │ Implemented profile header component                            ││
 │ └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
-│ 🔗 Link to Task (optional)                                         │
+│ 🔗 Link to Quest (optional)                                       │
 │ ┌─────────────────────────────────────────────────────────────────┐│
 │ │ [Implement user profile page ⚡]                                ││
 │ └─────────────────────────────────────────────────────────────────┘│
-│ 💡 Tip: Linking to task updates actual time tracking              │
+│ 💡 Tip: Linking to quest updates time tracking                    │
 │                                                                     │
 │ 📊 Details                                                         │
 │ ┌───────────────────────┬─────────────────────────────────────────┐│
 │ │ Duration:             │ Category:                               ││
-│ │ [45] minutes          │ [Frontend (inherited) ▼]                ││
+│ │ [45] minutes          │ [Frontend ▼]                            ││
 │ └───────────────────────┴─────────────────────────────────────────┘│
 │                                                                     │
 │ 📝 Notes (optional)                                                │
@@ -600,9 +615,11 @@ Project (1)
 │ │ Used Shadcn UI components, added avatar and stats               ││
 │ └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
-│                        [Cancel]  [✅ Log Mission]                  │
+│                        [Cancel]  [✅ Record Battle]                │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
+**Note:** Project field is **hidden** when opened from project detail page since it's pre-filled. Only shown when creating from global/dashboard view.
 
 ---
 
