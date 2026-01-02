@@ -352,6 +352,46 @@ services/
 
 ## 🔧 Quick Fixes
 
+### Loading flicker when navigating between pages?
+
+**Cause**: Not initializing hooks from localStorage
+
+```typescript
+// ❌ BAD - Shows "Not Found" briefly
+const [data, setData] = useState<Data[]>([]);
+const [isLoading, setIsLoading] = useState(true);
+
+// ✅ GOOD - Instant data from localStorage
+const getInitialData = (): Data[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.YOUR_DATA);
+    if (stored) {
+      try {
+        return JSON.parse(stored).map(transformData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
+
+const [data, setData] = useState<Data[]>(getInitialData);
+const [isLoading, setIsLoading] = useState(() => getInitialData().length === 0);
+```
+
+**Also ensure pages check all loading states:**
+```typescript
+// In page component
+const { data, isLoading: dataLoading } = useYourData();
+const { projects, isLoading: projectsLoading } = useProjects();
+
+// Check ALL loading states before rendering
+if (authLoading || dataLoading || projectsLoading) {
+  return <LoadingSpinner />;
+}
+```
+
 ### Text invisible on dark background?
 Add `text-foreground` class:
 ```typescript
@@ -434,13 +474,31 @@ import { useState, useEffect } from 'react';
 import { yourApi } from '@/services/mock-api';
 import { transformData } from '@/lib/transformers';
 import { toast } from '@/components/ui/use-toast';
+import { STORAGE_KEYS } from '@/lib/constants';
+
+// IMPORTANT: Initialize from localStorage to prevent loading flickers
+const getInitialData = () => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.YOUR_DATA);
+    if (stored) {
+      try {
+        return JSON.parse(stored).map(transformData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
 
 export function useYourFeature() {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(() => getInitialData());
+  const [isLoading, setIsLoading] = useState(() => getInitialData().length === 0);
 
   useEffect(() => {
-    fetchData();
+    if (data.length === 0) {
+      fetchData();
+    }
   }, []);
 
   const fetchData = async () => {

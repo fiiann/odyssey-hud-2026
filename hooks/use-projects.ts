@@ -5,12 +5,33 @@ import { projectApi } from '@/services/mock-api';
 import { Project } from '@/lib/types';
 import { transformProjectData, toProjectData } from '@/lib/transformers';
 import { toast } from '@/components/ui/use-toast';
+import { STORAGE_KEYS } from '@/lib/constants';
+
+// Initialize from localStorage for instant data availability
+const getInitialProjects = (): Project[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        return data.map(transformProjectData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
 
 export function useProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>(getInitialProjects);
+  const [isLoading, setIsLoading] = useState(() => getInitialProjects().length === 0);
 
   useEffect(() => {
+    // Only fetch if we don't have data yet
+    if (projects.length > 0) {
+      return;
+    }
     fetchProjects();
   }, []);
 

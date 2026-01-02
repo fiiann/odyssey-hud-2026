@@ -5,12 +5,32 @@ import { taskApi } from '@/services/mock-api';
 import { Task } from '@/lib/types';
 import { transformTaskData, toTaskData } from '@/lib/transformers';
 import { toast } from '@/components/ui/use-toast';
+import { STORAGE_KEYS } from '@/lib/constants';
+
+// Initialize from localStorage for instant data availability
+const getInitialTasks = (projectId?: string): Task[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        const allTasks = data.map(transformTaskData);
+        // Filter by projectId if provided
+        return projectId ? allTasks.filter((t: Task) => t.projectId === projectId) : allTasks;
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
 
 export function useTasks(projectId?: string) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>(() => getInitialTasks(projectId));
+  const [isLoading, setIsLoading] = useState(() => getInitialTasks(projectId).length === 0);
 
   useEffect(() => {
+    // Always fetch to ensure we have the latest data
     fetchTasks();
   }, [projectId]);
 

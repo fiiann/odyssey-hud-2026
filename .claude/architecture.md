@@ -160,6 +160,57 @@ All hooks return:
 }
 ```
 
+#### CRITICAL: Hook Initialization Pattern
+**Always initialize hooks from localStorage to prevent loading flickers during navigation.**
+
+```typescript
+// ❌ BAD - Causes "Not Found" flicker when navigating between pages
+export function useProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  // ...
+}
+
+// ✅ GOOD - Instant data availability, no flicker
+const getInitialProjects = (): Project[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        return data.map(transformProjectData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
+
+export function useProjects() {
+  const [projects, setProjects] = useState<Project[]>(getInitialProjects);
+  const [isLoading, setIsLoading] = useState(() => getInitialProjects().length === 0);
+
+  useEffect(() => {
+    // Only fetch if we don't have data yet
+    if (projects.length === 0) {
+      fetchProjects();
+    }
+  }, []);
+  // ...
+}
+```
+
+**Why this matters:**
+- When navigating between pages, each page creates new hook instances
+- Without cached initialization, state starts empty, causing "Not Found" states
+- This pattern ensures instant data availability from localStorage
+- The `isLoading` is `false` if we have cached data on mount
+
 ### 4. Mock API Simulation
 The mock API simulates real backend behavior:
 - **Network delays**: Random 500-1500ms

@@ -120,13 +120,32 @@ import { achievementApi } from '@/services/mock-api';
 import { Achievement, AchievementData } from '@/lib/types';
 import { transformAchievementData } from '@/lib/transformers';
 import { toast } from '@/components/ui/use-toast';
+import { STORAGE_KEYS } from '@/lib/constants';
+
+// CRITICAL: Initialize from localStorage to prevent loading flickers
+const getInitialAchievements = (): Achievement[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+    if (stored) {
+      try {
+        return JSON.parse(stored).map(transformAchievementData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
 
 export function useAchievements() {
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [achievements, setAchievements] = useState<Achievement[]>(getInitialAchievements);
+  const [isLoading, setIsLoading] = useState(() => getInitialAchievements().length === 0);
 
   useEffect(() => {
-    fetchAchievements();
+    // Only fetch if empty
+    if (achievements.length === 0) {
+      fetchAchievements();
+    }
   }, []);
 
   const fetchAchievements = async () => {
@@ -762,6 +781,88 @@ code services/mock-api.ts # Mock API
 code hooks/              # All hooks
 code components/ui/      # UI components
 ```
+
+---
+
+## 11. Preventing Navigation Loading Issues
+
+### Problem: "Not Found" Flicker When Navigating
+
+When navigating between pages (e.g., Project Detail → Task Detail → back), the app briefly shows a "Not Found" error before displaying content.
+
+### Root Cause
+
+1. Each page creates new hook instances on navigation
+2. Hooks start with empty state and fetch data asynchronously
+3. During fetch, `getById()` returns `undefined`, triggering "Not Found" state
+
+### Solution: Initialize Hooks from localStorage
+
+```typescript
+// In hooks/use-projects.ts, hooks/use-tasks.ts, etc.
+
+import { STORAGE_KEYS } from '@/lib/constants';
+
+// Helper function to read from localStorage immediately
+const getInitialData = (): YourType[] => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEYS.YOUR_DATA);
+    if (stored) {
+      try {
+        return JSON.parse(stored).map(transformYourData);
+      } catch {
+        return [];
+      }
+    }
+  }
+  return [];
+};
+
+export function useYourData() {
+  // Lazy initialization - function runs once on mount
+  const [data, setData] = useState<YourType[]>(getInitialData);
+
+  // isLoading is false if we have cached data
+  const [isLoading, setIsLoading] = useState(() => getInitialData().length === 0);
+
+  useEffect(() => {
+    // Only fetch if we don't have data yet
+    if (data.length === 0) {
+      fetchData();
+    }
+  }, []);
+
+  // ...
+}
+```
+
+### Page Loading Pattern
+
+When using multiple hooks in a page, check ALL loading states:
+
+```typescript
+// In page component
+const { isAuthenticated, isLoading: authLoading } = useAuth();
+const { projects, getProjectById, isLoading: projectsLoading } = useProjects();
+const { tasks, getTaskById, isLoading: tasksLoading } = useTasks(projectId);
+
+// Check ALL loading states BEFORE checking for data existence
+if (authLoading || projectsLoading || tasksLoading) {
+  return <LoadingSpinner />;
+}
+
+// Only after loading checks, verify data exists
+if (!project || !task) {
+  return <NotFoundState />;
+}
+```
+
+### Checklist for New Features
+
+- [ ] Hook initializes state from localStorage using lazy initialization
+- [ ] `isLoading` is `false` when cached data exists
+- [ ] Pages check ALL hook loading states before rendering
+- [ ] Pages check data existence AFTER loading checks
 
 ---
 

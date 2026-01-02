@@ -36,9 +36,9 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { projects, getProjectById, updateProject, deleteProject } = useProjects();
+  const { projects, getProjectById, updateProject, deleteProject, isLoading: projectsLoading } = useProjects();
   const { missions, deleteMission, createMission } = useMissions();
-  const { tasks, taskStats, createTask, updateTask, deleteTask, getTaskById } = useTasks(params.projectId as string);
+  const { tasks, taskStats, createTask, updateTask, deleteTask, getTaskById, isLoading: tasksLoading } = useTasks(params.projectId as string);
   const { mode: terminologyMode, setMode: setTerminologyMode } = useTerminologyMode();
 
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -246,7 +246,7 @@ export default function ProjectDetailPage() {
     setMissionModalOpen(true);
   };
 
-  if (authLoading) {
+  if (authLoading || projectsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />

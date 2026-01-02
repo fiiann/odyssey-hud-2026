@@ -43,7 +43,7 @@ export default function TaskDetailPage() {
     const router = useRouter();
     const params = useParams();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
-    const { getProjectById } = useProjects();
+    const { getProjectById, isLoading: projectsLoading } = useProjects();
     const { tasks, updateTask, deleteTask, getTaskById, isLoading: tasksLoading } = useTasks(params.projectId as string);
     const { missions, deleteMission, createMission } = useMissions();
     const { mode: terminologyMode } = useTerminologyMode();
@@ -124,7 +124,7 @@ export default function TaskDetailPage() {
         }
     };
 
-    if (authLoading || tasksLoading) {
+    if (authLoading || tasksLoading || projectsLoading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
