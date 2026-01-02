@@ -33,6 +33,7 @@ const missionSchema = z.object({
   durationMin: z.number().min(1, 'Duration must be at least 1 minute'),
   category: z.string().optional(),
   taskId: z.string().optional(),
+  projectId: z.string().optional(),
 });
 
 export type MissionFormValues = z.infer<typeof missionSchema>;
@@ -43,6 +44,7 @@ interface MissionModalProps {
   onSubmit: (data: MissionFormValues) => Promise<void>;
   projectId?: string; // Pre-assigned project ID
   projectName?: string; // For display
+  projects?: Array<{ projectId: string; title: string }>;
   tasks?: Array<{ taskId: string; title: string; status: string }>;
   mode?: 'PROFESSIONAL' | 'ODYSSEY';
 }
@@ -53,6 +55,7 @@ export function MissionModal({
   onSubmit,
   projectId,
   projectName,
+  projects = [],
   tasks = [],
   mode = 'PROFESSIONAL',
 }: MissionModalProps) {
@@ -74,6 +77,7 @@ export function MissionModal({
       durationMin: 30,
       category: '',
       taskId: '',
+      projectId: '',
     },
   });
 
@@ -150,6 +154,33 @@ export function MissionModal({
               {...register('description')}
             />
           </div>
+
+          {/* Project Selection (Visible only if no projectId prop is provided) */}
+          {!projectId && projects.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="projectId">
+                {mode === 'ODYSSEY' ? 'Target Sector' : 'Project'} *
+              </Label>
+              <Select
+                onValueChange={(value) => setValue('projectId', value)}
+                value={watch('projectId')}
+              >
+                <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectValue placeholder={mode === 'ODYSSEY' ? 'Select a sector...' : 'Select a project...'} />
+                </SelectTrigger>
+                <SelectContent className="bg-[#121214] border-white/10">
+                  {projects.map((p) => (
+                    <SelectItem key={p.projectId} value={p.projectId}>
+                      {p.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.projectId && (
+                <p className="text-sm text-destructive">{errors.projectId.message}</p>
+              )}
+            </div>
+          )}
 
           {/* Link to Task (Optional) */}
           {tasks.length > 0 && (

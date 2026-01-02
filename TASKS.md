@@ -181,6 +181,12 @@ When completing tasks:
   - Made project cards clickable on dashboard
   - Commit: d5b7b54
 
+- [x] Implement Task-Driven Project Progress
+  - Completed: 2026-01-02
+  - Auto-calculate % from task completion
+  - Updated `lib/calculations.ts` and UI modals
+  - Commit: b38f5ac
+
 - [x] Initialize Next.js 16 project
   - Completed: 2025-12-31
   - Commit: Initial project setup
@@ -333,11 +339,11 @@ Before moving a task to COMPLETED:
 ### Current Sprint
 - **TO DO:** 7 tasks (4 HIGH, 2 MED, 1 LOW)
 - **BACKLOG:** 5 tasks
-- **COMPLETED:** 17 tasks
+- **COMPLETED:** 18 tasks
 
 ### Velocity
-- **Last 7 days:** 17 tasks completed
-- **Average:** 2.4 tasks/day
+- **Last 7 days:** 18 tasks completed
+- **Average:** 2.5 tasks/day
 
 ### Next Focus
 1. Skeleton loading components

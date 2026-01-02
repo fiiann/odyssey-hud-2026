@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { PROJECT_STATUS } from '@/lib/constants';
 import { formatDuration, getProjectExecutionStats } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
     Sword,
     LayoutGrid,
@@ -45,6 +46,7 @@ export default function ProjectsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [currentPage, setCurrentPage] = useState(1);
+    const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
     const itemsPerPage = 10;
 
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({
@@ -182,11 +184,7 @@ export default function ProjectsPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => {
-                            if (confirm('Permanently decommission this project?')) {
-                                deleteProject(project.projectId);
-                            }
-                        }}
+                        onClick={() => setDeleteProjectId(project.projectId)}
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
@@ -304,6 +302,22 @@ export default function ProjectsPage() {
                     />
                 </div>
             </main>
+
+            <ConfirmDialog
+                open={deleteProjectId !== null}
+                onOpenChange={() => setDeleteProjectId(null)}
+                title="Delete Project?"
+                description="Permanently decommission this project?"
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                onConfirm={async () => {
+                    if (deleteProjectId) {
+                        await deleteProject(deleteProjectId);
+                        setDeleteProjectId(null);
+                    }
+                }}
+                variant="destructive"
+            />
         </div>
     );
 }

@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sword, Loader2, ArrowLeft, Plus, LayoutList, LayoutGrid, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,6 +43,9 @@ export default function ProjectDetailPage() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [deleteProjectConfirm, setDeleteProjectConfirm] = useState(false);
+  const [deleteMissionId, setDeleteMissionId] = useState<string | null>(null);
+  const [deleteTaskConfirm, setDeleteTaskConfirm] = useState(false);
 
   // Task modals
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -144,10 +148,12 @@ export default function ProjectDetailPage() {
   };
 
   const handleDeleteProject = async () => {
-    if (confirm('Permanently archive this sector and all its missions?')) {
-      await deleteProject(projectId);
-      router.push('/projects');
-    }
+    setDeleteProjectConfirm(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    await deleteProject(projectId);
+    router.push('/projects');
   };
 
   const handleUpdateProject = async (data: any) => {
@@ -158,8 +164,13 @@ export default function ProjectDetailPage() {
   };
 
   const handleDeleteMission = async (missionId: string) => {
-    if (confirm('Confirm operational rollback for this mission?')) {
-      await deleteMission(missionId);
+    setDeleteMissionId(missionId);
+  };
+
+  const confirmDeleteMission = async () => {
+    if (deleteMissionId) {
+      await deleteMission(deleteMissionId);
+      setDeleteMissionId(null);
     }
   };
 
@@ -177,10 +188,17 @@ export default function ProjectDetailPage() {
   };
 
   const handleDeleteTask = async () => {
-    if (selectedTask && confirm('Delete this task? Linked missions will be preserved.')) {
+    if (selectedTask) {
+      setDeleteTaskConfirm(true);
+    }
+  };
+
+  const confirmDeleteTask = async () => {
+    if (selectedTask) {
       await deleteTask(selectedTask.taskId);
       setTaskDetailModalOpen(false);
       setSelectedTask(undefined);
+      setDeleteTaskConfirm(false);
     }
   };
 
@@ -458,6 +476,42 @@ export default function ProjectDetailPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Project Confirmation */}
+      <ConfirmDialog
+        open={deleteProjectConfirm}
+        onOpenChange={setDeleteProjectConfirm}
+        title="Delete Project?"
+        description="Permanently archive this sector and all its missions?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDeleteProject}
+        variant="destructive"
+      />
+
+      {/* Delete Mission Confirmation */}
+      <ConfirmDialog
+        open={deleteMissionId !== null}
+        onOpenChange={() => setDeleteMissionId(null)}
+        title="Delete Mission?"
+        description="Confirm operational rollback for this mission?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDeleteMission}
+        variant="destructive"
+      />
+
+      {/* Delete Task Confirmation */}
+      <ConfirmDialog
+        open={deleteTaskConfirm}
+        onOpenChange={setDeleteTaskConfirm}
+        title="Delete Task?"
+        description="Delete this task? Linked missions will be preserved."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDeleteTask}
+        variant="destructive"
+      />
     </div>
   );
 }
