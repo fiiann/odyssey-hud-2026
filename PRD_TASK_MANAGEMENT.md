@@ -74,10 +74,10 @@ Introduce a **3-tier hierarchy**: **Projects → Tasks → Missions**
 
 | Concept | Professional Mode | Odyssey Mode |
 |---------|------------------|--------------|
-| **3-Tier Hierarchy** | Project → Task → Time Entry | Sector → Mission → Execution Log |
+| **3-Tier Hierarchy** | Project → Task → Time Entry | Sector → Quest → Battle Log |
 | **Project** | Project | Sector |
-| **Task** | Task | Mission |
-| **Time Log** | Time Entry / Work Log | Execution Log / Battle Log |
+| **Planned Work** | Task | Quest |
+| **Time Log** | Time Entry / Work Log | Battle Log / Execution Log |
 | **User** | User | Architect |
 | **Level** | Level | Rank |
 | **XP** | Experience Points | Execution Credits |

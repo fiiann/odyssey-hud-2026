@@ -145,12 +145,12 @@ export const TERMINOLOGY = {
     // Core Entities
     project: 'Sector',
     projects: 'Sectors',
-    task: 'Mission',
-    tasks: 'Missions',
-    timeEntry: 'Execution Log',
-    timeEntries: 'Execution Logs',
-    mission: 'Execution Log', // Alias for timeEntry
-    missions: 'Execution Logs',
+    task: 'Quest',
+    tasks: 'Quests',
+    timeEntry: 'Battle Log',
+    timeEntries: 'Battle Logs',
+    mission: 'Battle Log', // Alias for timeEntry
+    missions: 'Battle Logs',
     user: 'Architect',
     level: 'Rank',
     xp: 'Execution Credits',
@@ -185,13 +185,13 @@ export const TERMINOLOGY = {
     },
 
     // UI Labels - Actions
-    createTask: 'Accept Mission',
-    editTask: 'Modify Mission',
-    deleteTask: 'Abort Mission',
+    createTask: 'Accept Quest',
+    editTask: 'Modify Quest',
+    deleteTask: 'Abort Quest',
     startTask: 'Deploy to Sector',
-    completeTask: 'Mission Accomplished',
-    logTime: 'Record Execution',
-    recordExecution: 'Record Execution',
+    completeTask: 'Quest Complete',
+    logTime: 'Record Battle',
+    recordExecution: 'Record Battle',
     viewStats: 'Access Intel',
     save: 'Save Parameters',
     cancel: 'Abort',
@@ -207,15 +207,15 @@ export const TERMINOLOGY = {
     // UI Labels - Views
     listView: 'Tactical View',
     boardView: 'Strategic View',
-    detailView: 'Mission Intel',
+    detailView: 'Quest Intel',
 
     // Messages & Feedback
     messages: {
-      taskCreated: 'Mission accepted, Architect',
-      taskUpdated: 'Mission parameters updated',
-      taskDeleted: 'Mission terminated',
-      taskCompleted: 'Mission accomplished! Sector secured!',
-      timeLogged: 'Execution recorded in archives',
+      taskCreated: 'Quest accepted, Architect',
+      taskUpdated: 'Quest parameters updated',
+      taskDeleted: 'Quest terminated',
+      taskCompleted: 'Quest complete! Sector secured!',
+      timeLogged: 'Battle recorded in archives',
       levelUp: 'Rank increased! Promotion earned!',
       achievementUnlocked: 'Badge acquired!',
       errorOccurred: 'System error detected',
@@ -223,10 +223,10 @@ export const TERMINOLOGY = {
 
     // Empty States
     emptyStates: {
-      noTasks: 'No active missions, Architect',
-      allDone: 'All missions accomplished! Sector secured!',
+      noTasks: 'No active quests, Architect',
+      allDone: 'All quests complete! Sector secured!',
       noProjects: 'No sectors established',
-      noMissions: 'No executions recorded',
+      noMissions: 'No battles recorded',
     },
 
     // Time Periods
@@ -239,8 +239,8 @@ export const TERMINOLOGY = {
 
     // Form Labels
     forms: {
-      taskTitle: 'Mission Objective',
-      description: 'Mission Brief',
+      taskTitle: 'Quest Objective',
+      description: 'Quest Brief',
       status: 'Status',
       priority: 'Priority Class',
       category: 'Division',
@@ -249,13 +249,13 @@ export const TERMINOLOGY = {
       dueDate: 'Deadline',
       tags: 'Tags',
       project: 'Sector',
-      linkToTask: 'Link to Mission (optional)',
+      linkToTask: 'Link to Quest (optional)',
     },
 
     // Stats Labels
     stats: {
-      totalTasks: 'Total Missions',
-      completed: 'Accomplished',
+      totalTasks: 'Total Quests',
+      completed: 'Complete',
       inProgress: 'Active',
       todo: 'Pending',
       estimatedTotal: 'Estimated Total',

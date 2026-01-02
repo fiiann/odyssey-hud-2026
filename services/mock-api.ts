@@ -223,7 +223,7 @@ export const taskApi = {
     return { success: false, error: 'Task not found' };
   },
 
-  createTask: async (data: Omit<TaskData, 'task_id' | 'created_at' | 'updated_at' | 'actual_min' | 'tags' | 'position'>): Promise<ApiResponse<TaskData>> => {
+  createTask: async (data: Omit<TaskData, 'task_id' | 'created_at' | 'updated_at' | 'actual_min' | 'position'>): Promise<ApiResponse<TaskData>> => {
     await simulateDelay();
     if (shouldSimulateError()) return { success: false, error: 'Network failure' };
 
