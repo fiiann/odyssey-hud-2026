@@ -6,6 +6,7 @@
 **Author:** Claude Code AI + Human Collaboration
 
 **Changelog:**
+- v1.2 (2026-01-02): Added Task Detail Page, Bidirectional Status Flow, and Kanban Improvements
 - v1.1 (2026-01-01): Added Dual Terminology System (Professional vs Odyssey Mode)
 - v1.0 (2026-01-01): Initial PRD - Core task management system
 
@@ -289,8 +290,10 @@ const t = useTerminology(mode);
 3. **Implement Task Prioritization** (LOW, MEDIUM, HIGH, URGENT)
 4. **Add Time Estimation** to track planned vs actual
 5. **Create Task Detail View** with rich editing capabilities
-6. **Build Task Board View** (Kanban-style) for each project
-7. **Enhance Project Detail Page** with task progress metrics
+7. **Build Task Board View** (Kanban-style) for each project with full drag-and-drop
+8. **Enable Bidirectional Status Flow** (Move from Complete back to Active/Pending)
+9. **Implement Individual Task Pages** for deep focus and status management
+10. **Enhance Project Detail Page** with task progress metrics
 
 ### Secondary Objectives
 1. Add task categories/tags (Backend, Frontend, DevOps, Design, etc.)
@@ -300,6 +303,7 @@ const t = useTerminology(mode);
 5. Add task templates for common work patterns
 6. Implement task search and advanced filtering
 7. Add task activity timeline/history
+8. Enable custom status colors and icons
 
 ---
 

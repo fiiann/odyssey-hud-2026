@@ -46,6 +46,7 @@ interface MissionModalProps {
   projectName?: string; // For display
   projects?: Array<{ projectId: string; title: string }>;
   tasks?: Array<{ taskId: string; title: string; status: string }>;
+  defaultTaskId?: string; // Pre-selected task ID
   mode?: 'PROFESSIONAL' | 'ODYSSEY';
 }
 
@@ -57,6 +58,7 @@ export function MissionModal({
   projectName,
   projects = [],
   tasks = [],
+  defaultTaskId,
   mode = 'PROFESSIONAL',
 }: MissionModalProps) {
   const t = useTerminology(mode);
@@ -84,10 +86,18 @@ export function MissionModal({
 
   // Reset form when modal opens/closes
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      // Set default values when modal opens
+      if (projectId) {
+        setValue('projectId', projectId);
+      }
+      if (defaultTaskId) {
+        setValue('taskId', defaultTaskId);
+      }
+    } else {
       reset();
     }
-  }, [open, reset]);
+  }, [open, reset, projectId, defaultTaskId, setValue]);
 
   const handleFormSubmit = async (data: MissionFormValues) => {
     setIsSubmitting(true);
@@ -100,13 +110,6 @@ export function MissionModal({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const getDialogTitle = () => {
-    if (projectName) {
-      return `${t.logTime} - ${projectName}`;
-    }
-    return t.logTime;
   };
 
   return (

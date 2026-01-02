@@ -176,12 +176,23 @@ export default function ProjectDetailPage() {
 
   // Task handlers
   const handleCreateTask = async (data: TaskFormValues) => {
-    await createTask(data as any);
+    // Transform form data (snake_case) to client model (camelCase)
+    await createTask({
+      ...data,
+      projectId: data.project_id,
+      estimatedMin: data.estimated_min,
+      dueDate: data.due_date,
+    } as any);
   };
 
   const handleUpdateTask = async (data: TaskFormValues) => {
     if (selectedTask) {
-      await updateTask(selectedTask.taskId, data as any);
+      await updateTask(selectedTask.taskId, {
+        ...data,
+        projectId: data.project_id,
+        estimatedMin: data.estimated_min,
+        dueDate: data.due_date,
+      } as any);
       setSelectedTask(undefined);
       setIsEditingTask(false);
     }
@@ -203,8 +214,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleOpenTaskDetail = (task: Task) => {
-    setSelectedTask(task);
-    setTaskDetailModalOpen(true);
+    router.push(`/projects/${projectId}/tasks/${task.taskId}`);
   };
 
   const handleEditTaskClick = () => {

@@ -10,15 +10,29 @@ import { cn } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { useRouter } from 'next/navigation';
+
 interface TaskKanbanCardProps {
   task: Task;
-  onClick?: () => void;
+  onClick?: (task: Task) => void;
   mode?: 'PROFESSIONAL' | 'ODYSSEY';
-  isDragging?: boolean;
+  isOverlay?: boolean;
 }
 
-export function TaskKanbanCard({ task, onClick, mode = 'PROFESSIONAL', isDragging = false }: TaskKanbanCardProps) {
+export function TaskKanbanCard({ task, onClick, mode = 'PROFESSIONAL', isOverlay = false }: TaskKanbanCardProps) {
   const t = useTerminology(mode);
+  const router = useRouter();
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent navigation if it's the overlay or if we're dragging (though sensor handles this)
+    if (isOverlay) return;
+
+    if (onClick) {
+      onClick(task);
+    } else {
+      router.push(`/projects/${task.projectId}/tasks/${task.taskId}`);
+    }
+  };
 
   const {
     attributes,
@@ -26,6 +40,7 @@ export function TaskKanbanCard({ task, onClick, mode = 'PROFESSIONAL', isDraggin
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: task.taskId });
 
   const style = {
@@ -67,12 +82,13 @@ export function TaskKanbanCard({ task, onClick, mode = 'PROFESSIONAL', isDraggin
   return (
     <div ref={setNodeRef} style={style}>
       <Card
-        onClick={onClick}
+        onClick={handleCardClick}
         className={cn(
           "border-white/5 bg-[#121214] hover:bg-[#18181b] hover:border-primary/30 transition-all cursor-pointer select-none",
           "p-3 space-y-2",
           task.status === 'COMPLETED' && "opacity-60",
-          isDragging && "opacity-50 rotate-2 scale-105 shadow-2xl"
+          isDragging && "opacity-30", // Dim original item when dragging
+          isOverlay && "opacity-100 rotate-2 scale-105 shadow-2xl z-50 cursor-grabbing bg-[#18181b] border-primary/50" // Style the overlay
         )}
         {...attributes}
         {...listeners}
@@ -124,8 +140,8 @@ export function TaskKanbanCard({ task, onClick, mode = 'PROFESSIONAL', isDraggin
                   className={cn(
                     "ml-0.5",
                     Math.abs(variance) <= 20 ? "text-green-500" :
-                    Math.abs(variance) <= 50 ? "text-yellow-500" :
-                    "text-red-500"
+                      Math.abs(variance) <= 50 ? "text-yellow-500" :
+                        "text-red-500"
                   )}
                 >
                   ({variance > 0 ? '+' : ''}{variance.toFixed(0)}%)

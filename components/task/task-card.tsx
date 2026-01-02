@@ -8,14 +8,25 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, Calendar, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useRouter } from 'next/navigation';
+
 interface TaskCardProps {
   task: Task;
-  onClick?: () => void;
+  onClick?: (task: Task) => void;
   mode?: 'PROFESSIONAL' | 'ODYSSEY';
 }
 
 export function TaskCard({ task, onClick, mode = 'PROFESSIONAL' }: TaskCardProps) {
   const t = useTerminology(mode);
+  const router = useRouter();
+
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(task);
+    } else {
+      router.push(`/projects/${task.projectId}/tasks/${task.taskId}`);
+    }
+  };
 
   // Get status styling
   const getStatusStyle = (status: TaskStatus) => {
@@ -70,7 +81,7 @@ export function TaskCard({ task, onClick, mode = 'PROFESSIONAL' }: TaskCardProps
 
   return (
     <Card
-      onClick={onClick}
+      onClick={handleCardClick}
       className={cn(
         "border-white/5 bg-[#121214] hover:bg-[#18181b] hover:border-primary/30 transition-all cursor-pointer group",
         task.status === 'COMPLETED' && 'opacity-60'
@@ -150,8 +161,8 @@ export function TaskCard({ task, onClick, mode = 'PROFESSIONAL' }: TaskCardProps
                   className={cn(
                     "ml-1",
                     Math.abs(variance) <= 20 ? "text-green-500" :
-                    Math.abs(variance) <= 50 ? "text-yellow-500" :
-                    "text-red-500"
+                      Math.abs(variance) <= 50 ? "text-yellow-500" :
+                        "text-red-500"
                   )}
                 >
                   ({variance > 0 ? '+' : ''}{variance.toFixed(0)}%)

@@ -13,6 +13,9 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onOpenChange, children, ariaLabelledby }: DialogProps) {
+  // Generate unique ID for dialog - must be called before any conditional returns
+  const dialogId = React.useId?.() || 'dialog';
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -32,9 +35,6 @@ export function Dialog({ open, onOpenChange, children, ariaLabelledby }: DialogP
   }, [open, onOpenChange]);
 
   if (!open) return null;
-
-  // Generate unique ID for dialog
-  const dialogId = React.useId?.() || 'dialog';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -76,8 +76,8 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
 }
 
 export function DialogTitle({ className, id, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { id?: string }) {
-  const titleId = id || React.useId?.();
-  return <h2 id={titleId} className={cn("text-lg font-semibold leading-none tracking-tight", className)} {...props} />;
+  const titleId = React.useId?.();
+  return <h2 id={id || titleId} className={cn("text-lg font-semibold leading-none tracking-tight", className)} {...props} />;
 }
 
 export function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
