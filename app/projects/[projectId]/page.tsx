@@ -8,6 +8,7 @@ import { useMissions } from '@/hooks/use-missions';
 import { useTasks } from '@/hooks/use-tasks';
 import { useTerminologyMode } from '@/hooks/use-terminology-mode';
 import { Task } from '@/lib/types';
+import { getProjectExecutionStats } from '@/lib/calculations';
 import { ProjectHeader } from '@/components/project/project-header';
 import { ProjectStatsCards } from '@/components/project/project-stats-cards';
 import { MissionTimeline } from '@/components/project/mission-timeline';
@@ -123,10 +124,16 @@ export default function ProjectDetailPage() {
   }, [tasks, taskFilters]);
 
   const projectId = params.projectId as string;
-  const project = getProjectById(projectId);
+  const rawProject = getProjectById(projectId);
   const projectMissions = missions.filter(m => m.projectId === projectId);
 
-  // Calculate stats
+  // Calculate stats including dynamic progress
+  const project = useMemo(() => {
+    if (!rawProject) return null;
+    const stats = getProjectExecutionStats(missions, [rawProject], tasks);
+    return stats[0];
+  }, [missions, rawProject, tasks]);
+
   const totalMissions = projectMissions.length;
   const totalDuration = projectMissions.reduce((sum, m) => sum + m.durationMin, 0);
   const avgDuration = totalMissions > 0 ? totalDuration / totalMissions : 0;
@@ -146,7 +153,6 @@ export default function ProjectDetailPage() {
   const handleUpdateProject = async (data: any) => {
     await updateProject(projectId, {
       ...data,
-      progress: parseInt(data.progress) || 0,
     });
     setEditModalOpen(false);
   };
@@ -432,17 +438,6 @@ export default function ProjectDetailPage() {
                     defaultValue={project.title}
                     {...register('title')}
                     className="bg-white/5 border-white/10 font-bold"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Completion Status ({project.progress}%)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    defaultValue={project.progress}
-                    {...register('progress')}
-                    className="bg-white/5 border-white/10 font-mono"
                   />
                 </div>
                 <div className="space-y-1">

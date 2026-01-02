@@ -37,7 +37,6 @@ export const projectSchema = z.object({
   title: z.string().min(1, 'Project title is required').max(100),
   description: z.string().max(1000).optional().or(z.literal('')),
   status: z.enum(['ACTIVE', 'COMPLETED', 'ON_HOLD', 'ARCHIVED']),
-  progress: z.number().min(0).max(100),
   repo_url: z.string().url('Invalid URL').optional().or(z.literal('')),
   deploy_url: z.string().url('Invalid URL').optional().or(z.literal('')),
 });

@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useProfile } from '@/hooks/use-profile';
 import { useMissions } from '@/hooks/use-missions';
 import { useProjects } from '@/hooks/use-projects';
+import { useTasks } from '@/hooks/use-tasks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,7 @@ export default function ProjectsPage() {
     const { profile } = useProfile();
     const { missions } = useMissions();
     const { projects, isLoading: projectsLoading, deleteProject } = useProjects();
+    const { tasks } = useTasks();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -50,7 +52,7 @@ export default function ProjectsPage() {
         direction: 'asc',
     });
 
-    const projectStats = useMemo(() => getProjectExecutionStats(missions, projects), [missions, projects]);
+    const projectStats = useMemo(() => getProjectExecutionStats(missions, projects, tasks), [missions, projects, tasks]);
 
     const filteredProjects = useMemo(() => {
         return projectStats

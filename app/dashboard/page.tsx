@@ -67,7 +67,6 @@ export default function DashboardPage() {
     resolver: zodResolver(projectSchema),
     defaultValues: {
       status: 'ACTIVE',
-      progress: 0,
     }
   });
 
@@ -118,7 +117,7 @@ export default function DashboardPage() {
   };
 
   const xpProgress = profile ? getXpProgress(profile.totalXp) : null;
-  const projectStats = getProjectExecutionStats(missions, projects);
+  const projectStats = getProjectExecutionStats(missions, projects, tasks);
 
   if (authLoading || profileLoading) {
     return (
@@ -423,7 +422,6 @@ export default function DashboardPage() {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               handleUpdateProject(selectedProject.projectId, {
-                progress: parseInt(formData.get('progress') as string) || 0,
                 status: formData.get('status') as any,
                 title: formData.get('title') as string,
                 description: formData.get('description') as string,
@@ -433,10 +431,6 @@ export default function DashboardPage() {
                 <div className="space-y-1">
                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Project Title</Label>
                   <Input name="title" defaultValue={selectedProject.title} className="bg-white/5 border-white/10 font-bold" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Completion Status ({selectedProject.progress}%)</Label>
-                  <Input name="progress" type="number" min="0" max="100" defaultValue={selectedProject.progress} className="bg-white/5 border-white/10 font-mono" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Operational Lifecycle</Label>

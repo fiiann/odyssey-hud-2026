@@ -1,4 +1,4 @@
-import { Mission, Project } from './types';
+import { Mission, Project, Task } from './types';
 
 export function calculateLevel(totalMinutes: number): number {
   return Math.floor(Math.sqrt(totalMinutes / 60));
@@ -32,17 +32,30 @@ export function getXpProgress(totalMinutes: number): {
   };
 }
 
-export function getProjectExecutionStats(missions: Mission[], projects: Project[]) {
+export function getProjectExecutionStats(missions: Mission[], projects: Project[], tasks: Task[] = []) {
   const projectMissions: Record<string, number> = {};
 
   missions.forEach(m => {
     projectMissions[m.projectId] = (projectMissions[m.projectId] || 0) + m.durationMin;
   });
 
-  return projects.map(p => ({
-    ...p,
-    totalMinutes: projectMissions[p.projectId] || 0,
-  }));
+  return projects.map(p => {
+    // Filter tasks for this project, excluding cancelled ones
+    const projectTasks = tasks.filter(t => t.projectId === p.projectId && t.status !== 'CANCELLED');
+    const totalTasks = projectTasks.length;
+    const completedTasks = projectTasks.filter(t => t.status === 'COMPLETED').length;
+
+    // Calculate progress: if no tasks, progress is 0. Otherwise (completed / total) * 100
+    const computedProgress = totalTasks > 0
+      ? Math.round((completedTasks / totalTasks) * 100)
+      : 0;
+
+    return {
+      ...p,
+      totalMinutes: projectMissions[p.projectId] || 0,
+      progress: computedProgress, // Overwrite manual progress
+    };
+  });
 }
 
 export function formatDuration(minutes: number): string {
