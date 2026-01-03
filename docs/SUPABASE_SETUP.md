@@ -39,10 +39,19 @@ Once your project is ready, you need to gather the following credentials:
 3. Copy the URL (looks like: `https://xxxxxxxx.supabase.co`)
 4. **Save this URL**
 
-### 2.3 Service Role Key (SUPABASE_SERVICE_ROLE_KEY)
+### 2.3 Anon Key (NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
 1. Still on the **API** settings page
-2. Find **service_role** key (under "Project API keys")
+2. Find the **anon** key (under "Project API keys" > **Legacy** tab)
+   - OR find **Publishable key** (under the new **API Keys** tab, format: `sb_publishable_xxx`)
+3. Click the eye icon to reveal it, then copy it
+4. **Note**: This key is safe to use on the client side when Row Level Security (RLS) is enabled
+5. **Save this key**
+
+### 2.4 Service Role Key (SUPABASE_SERVICE_ROLE_KEY)
+
+1. Still on the **API** settings page
+2. Find **service_role** key (under "Project API keys" > **Legacy** tab)
 3. Click the eye icon to reveal it, then copy it
 4. **IMPORTANT**: This key bypasses Row Level Security - never expose it on the client side
 5. **Save this key**
@@ -64,12 +73,13 @@ Once your project is ready, you need to gather the following credentials:
    # Replace with your actual Project URL from Step 2.2
    NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxx.supabase.co"
 
+   # Replace with your Anon Key (or new Publishable Key)
+   # From: Supabase Dashboard > Project Settings > API > anon key (Legacy tab)
+   # OR: Supabase Dashboard > Project Settings > API > Publishable key (new format)
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key-or-publishable-key"
+
    # Replace with your actual Service Role Key from Step 2.3
    SUPABASE_SERVICE_ROLE_KEY="your-actual-service-role-key"
-
-   # Generate a secure random string for JWT signing
-   # You can use: openssl rand -base64 32
-   JWT_SECRET="your-generated-jwt-secret"
 
    # Application URL (keep as is for local development)
    NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -77,24 +87,32 @@ Once your project is ready, you need to gather the following credentials:
 
 4. **IMPORTANT**: Never commit `.env` to git! It's already in `.gitignore`
 
-## Step 4: Generate JWT Secret
+### Key Types Explained
 
-You need a secure random string for JWT token signing. Choose one of these methods:
+| Key | Prefix | Exposure | Use Case |
+|-----|--------|----------|----------|
+| **Anon Key** | `NEXT_PUBLIC_` | Public (safe) | Client-side with `@supabase/ssr`, requires RLS enabled |
+| **Service Role Key** | (none) | Private (secret) | Server-side API routes, bypasses RLS |
 
-### Option A: Using OpenSSL (Recommended)
+### ⚠️ JWT_SECRET Removed
+
+The custom `JWT_SECRET` is **no longer needed** when using Supabase Auth with `@supabase/ssr`. Supabase handles JWT token management automatically with secure httpOnly cookies.
+
+If you were using a custom JWT implementation before, you can remove that code and migrate to the official Supabase SSR package.
+
+## Step 4: Install Supabase SSR Package
+
+For Next.js App Router, the official `@supabase/ssr` package is recommended:
+
 ```bash
-openssl rand -base64 32
+npm install @supabase/supabase-js @supabase/ssr
 ```
 
-### Option B: Using Node.js
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-```
-
-### Option C: Online Generator
-Use a secure online generator like: https://generate-random.org/encryption-key-generator
-
-Copy the generated string and paste it as `JWT_SECRET` in your `.env` file.
+This package provides:
+- Server-side rendering (SSR) support
+- Cookie-based auth sessions (httpOnly, secure)
+- Automatic token refresh
+- Edge Runtime compatibility
 
 ## Step 5: Test Database Connection
 
@@ -124,7 +142,7 @@ Now let's verify that Prisma can connect to your Supabase database:
    - In Supabase dashboard, go to **Table Editor**
    - You should see tables: `User`, `Profile`, `Project`, `Task`, `Mission`
 
-## Step 6: Configure Supabase Auth (Optional but Recommended)
+## Step 6: Configure Supabase Auth
 
 If you want to use Supabase's built-in authentication (recommended for production):
 
