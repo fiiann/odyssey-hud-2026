@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useId } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Task, TaskStatus, TaskPriority, TaskCategory, Project } from '@/lib/types';
@@ -16,6 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,6 +60,7 @@ export function TaskModal({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
     setValue,
@@ -163,32 +171,46 @@ export function TaskModal({
               <Label htmlFor="task-status" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.status}
               </Label>
-              <select
-                id="task-status"
-                {...register('status')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="TODO">{t.status.TODO}</option>
-                <option value="IN_PROGRESS">{t.status.IN_PROGRESS}</option>
-                <option value="COMPLETED">{t.status.COMPLETED}</option>
-                <option value="CANCELLED">{t.status.CANCELLED}</option>
-              </select>
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0c0c0e] border-white/10">
+                      <SelectItem value="TODO">{t.status.TODO}</SelectItem>
+                      <SelectItem value="IN_PROGRESS">{t.status.IN_PROGRESS}</SelectItem>
+                      <SelectItem value="COMPLETED">{t.status.COMPLETED}</SelectItem>
+                      <SelectItem value="CANCELLED">{t.status.CANCELLED}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="task-priority" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.priority}
               </Label>
-              <select
-                id="task-priority"
-                {...register('priority')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="LOW">{t.priority.LOW}</option>
-                <option value="MEDIUM">{t.priority.MEDIUM}</option>
-                <option value="HIGH">{t.priority.HIGH}</option>
-                <option value="URGENT">{t.priority.URGENT}</option>
-              </select>
+              <Controller
+                control={control}
+                name="priority"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0c0c0e] border-white/10">
+                      <SelectItem value="LOW">{t.priority.LOW}</SelectItem>
+                      <SelectItem value="MEDIUM">{t.priority.MEDIUM}</SelectItem>
+                      <SelectItem value="HIGH">{t.priority.HIGH}</SelectItem>
+                      <SelectItem value="URGENT">{t.priority.URGENT}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 
@@ -198,36 +220,53 @@ export function TaskModal({
               <Label htmlFor="task-category" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.category}
               </Label>
-              <select
-                id="task-category"
-                {...register('category')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">None</option>
-                {TASK_CATEGORY.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {t.category[cat as keyof typeof t.category]}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue placeholder="None" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0c0c0e] border-white/10">
+                      <SelectItem value="none">None</SelectItem>
+                      {TASK_CATEGORY.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {t.category[cat as keyof typeof t.category]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="task-project" className="text-[10px] font-black uppercase tracking-widest opacity-50">
                 {t.forms.project}
               </Label>
-              <select
-                id="task-project"
-                {...register('project_id')}
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                disabled={!!task}
-              >
-                {projects.map((project) => (
-                  <option key={project.projectId} value={project.projectId}>
-                    {project.title}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={control}
+                name="project_id"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!!task}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0c0c0e] border-white/10">
+                      {projects.map((project) => (
+                        <SelectItem key={project.projectId} value={project.projectId}>
+                          {project.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.project_id && (
                 <p className="text-xs text-red-500">{errors.project_id.message}</p>
               )}
@@ -263,7 +302,7 @@ export function TaskModal({
                 id="task-due-date"
                 type="date"
                 {...register('due_date')}
-                className="bg-white/5 border-white/10"
+                className="bg-white/5 border-white/10 [color-scheme:dark]"
               />
             </div>
           </div>

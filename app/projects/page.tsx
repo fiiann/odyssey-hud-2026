@@ -17,6 +17,7 @@ import { PROJECT_STATUS } from '@/lib/constants';
 import { formatDuration, getProjectExecutionStats } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { EditProjectModal } from '@/components/dashboard/edit-project-modal';
 import {
     Sword,
     LayoutGrid,
@@ -40,13 +41,14 @@ export default function ProjectsPage() {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { profile } = useProfile();
     const { missions } = useMissions();
-    const { projects, isLoading: projectsLoading, deleteProject } = useProjects();
+    const { projects, isLoading: projectsLoading, deleteProject, updateProject } = useProjects();
     const { tasks } = useTasks();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [currentPage, setCurrentPage] = useState(1);
     const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+    const [editProject, setEditProject] = useState<Project | null>(null);
     const itemsPerPage = 10;
 
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({
@@ -98,12 +100,15 @@ export default function ProjectsPage() {
             header: 'Project Sector',
             sortable: true,
             renderCell: (project) => (
-                <div className="flex flex-col gap-1 max-w-md">
+                <button
+                    onClick={() => router.push(`/projects/${project.projectId}`)}
+                    className="flex flex-col gap-1 max-w-md text-left hover:text-primary transition-colors"
+                >
                     <span className="font-bold text-base tracking-tight">{project.title}</span>
                     {project.description && (
                         <span className="text-xs text-muted-foreground line-clamp-1">{project.description}</span>
                     )}
-                </div>
+                </button>
             ),
         },
         {
@@ -177,7 +182,12 @@ export default function ProjectsPage() {
             header: 'Actions',
             renderCell: (project) => (
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                        onClick={() => setEditProject(project)}
+                    >
                         <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
@@ -317,6 +327,19 @@ export default function ProjectsPage() {
                     }
                 }}
                 variant="destructive"
+            />
+
+            <EditProjectModal
+                open={editProject !== null}
+                onOpenChange={(open) => !open && setEditProject(null)}
+                project={editProject}
+                onUpdate={updateProject}
+                onDelete={() => {
+                    if (editProject) {
+                        setDeleteProjectId(editProject.projectId);
+                        setEditProject(null);
+                    }
+                }}
             />
         </div>
     );

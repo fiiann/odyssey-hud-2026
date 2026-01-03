@@ -20,6 +20,126 @@ When completing tasks:
 
 ## 🎯 TO DO (Work on these first!)
 
+### Critical Priority - Backend Implementation
+
+- [ ] **[CRITICAL]** Backend API Implementation (Next.js + Supabase)
+  - **Estimated:** 12-16 hours total
+  - **Context:** Build real API using Next.js API Routes + Supabase to replace mock API
+  - **Tech Stack:** Next.js 16 API Routes + Supabase (PostgreSQL) + Prisma ORM
+  - **Documentation:** `docs/API_CONTRACT.md`
+  - **Subtasks:**
+
+    - [ ] **1.1** Supabase Setup & Prisma Configuration (1-2 hours)
+      - Create Supabase project at https://supabase.com
+      - Get database connection URL (DATABASE_URL)
+      - Install dependencies: `npm install prisma @prisma/client`
+      - Initialize Prisma: `npx prisma init`
+      - Configure DATABASE_URL in `.env`
+      - **Acceptance Criteria:**
+        - [ ] Supabase project created
+        - [ ] DATABASE_URL in `.env` file
+        - [ ] Prisma initialized in project
+        - [ ] Can run `npx prisma db push`
+
+    - [ ] **1.2** Database Schema & Migrations (2-3 hours)
+      - Create Prisma schema in `prisma/schema.prisma`
+      - Define models: User, Profile, Project, Task, Mission
+      - Add relations and indexes
+      - Run initial migration: `npx prisma db push`
+      - **Acceptance Criteria:**
+        - [ ] All models created in Supabase
+        - [ ] Relations working (cascade delete)
+        - [ ] Indexes created
+        - [ ] Can view tables in Supabase dashboard
+
+    - [ ] **1.3** API Helper Functions (1 hour)
+      - Create `lib/db/prisma.ts` for Prisma client singleton
+      - Create `lib/api/response.ts` for apiSuccess/apiError helpers
+      - Create `lib/auth.ts` for JWT token utilities
+      - Setup httpOnly cookie handling
+      - **Acceptance Criteria:**
+        - [ ] Prisma client imported as singleton
+        - [ ] apiSuccess() and apiError() helpers working
+        - [ ] Can set/read httpOnly cookies
+        - [ ] JWT encode/decode functions working
+
+    - [ ] **1.4** Authentication API Routes (2-3 hours)
+      - Create `app/api/auth/login/route.ts`
+      - Create `app/api/auth/logout/route.ts`
+      - Create `app/api/auth/validate/route.ts`
+      - Create `app/api/auth/refresh/route.ts`
+      - Integrate with Supabase Auth
+      - **Acceptance Criteria:**
+        - [ ] POST /api/auth/login validates with Supabase
+        - [ ] Sets httpOnly cookie on successful login
+        - [ ] Logout clears cookie
+        - [ ] Validate endpoint checks JWT and returns user
+
+    - [ ] **1.5** Profile API Routes (1 hour)
+      - Create `app/api/profile/route.ts`
+      - GET returns user profile with calculated level
+      - PATCH updates profile fields
+      - **Acceptance Criteria:**
+        - [ ] GET /api/profile returns profile data
+        - [ ] PATCH /api/profile updates username/avatar/terminology_mode
+        - [ ] Level calculated: `floor(sqrt(total_xp / 60))`
+
+    - [ ] **1.6** Project API Routes (2 hours)
+      - Create `app/api/projects/route.ts` (GET, POST)
+      - Create `app/api/projects/[project_id]/route.ts` (GET, PATCH, DELETE)
+      - Add filtering, pagination, sorting
+      - Auto-calculate progress from tasks
+      - **Acceptance Criteria:**
+        - [ ] All CRUD operations working
+        - [ ] Query params: status, page, limit, sort, order
+        - [ ] progress = (completed_tasks / total_tasks) * 100
+        - [ ] Cascade delete working
+
+    - [ ] **1.7** Task API Routes (2-3 hours)
+      - Create `app/api/tasks/route.ts` (GET, POST)
+      - Create `app/api/tasks/[task_id]/route.ts` (GET, PATCH, DELETE)
+      - Create `app/api/tasks/[task_id]/time/route.ts` (PATCH)
+      - Auto-set completed_at on status=COMPLETED
+      - **Acceptance Criteria:**
+        - [ ] All CRUD operations working
+        - [ ] Filter by project_id, status, priority, category
+        - [ ] completed_at set automatically
+        - [ ] actual_min defaults to 0
+
+    - [ ] **1.8** Mission API Routes (2 hours)
+      - Create `app/api/missions/route.ts` (GET, POST)
+      - Create `app/api/missions/[mission_id]/route.ts` (DELETE)
+      - Side effects: update XP, task time, project progress
+      - **Acceptance Criteria:**
+        - [ ] Creating mission increments profile.total_xp
+        - [ ] If task_id provided, increments task.actual_min
+        - [ ] Deleting mission rolls back all changes
+        - [ ] Date range filtering working
+
+    - [ ] **1.9** Frontend Integration (2-3 hours)
+      - Update `hooks/use-auth.ts` to call `/api/auth/*`
+      - Update `hooks/use-profile.ts` to call `/api/profile`
+      - Update `hooks/use-projects.ts` to call `/api/projects`
+      - Update `hooks/use-tasks.ts` to call `/api/tasks`
+      - Update `hooks/use-missions.ts` to call `/api/missions`
+      - Remove localStorage data persistence
+      - Keep transformers for snake_case ↔ camelCase
+      - **Acceptance Criteria:**
+        - [ ] All hooks call real API endpoints
+        - [ ] No data in localStorage (except token via cookie)
+        - [ ] Loading states work
+        - [ ] Errors displayed via toast
+        - [ ] Optimistic updates still work
+
+    - [ ] **1.10** Cleanup (30 minutes)
+      - Delete `services/mock-api.ts`
+      - Remove unused localStorage code
+      - Update documentation
+      - **Acceptance Criteria:**
+        - [ ] Mock API file removed
+        - [ ] No references to mock-api.ts in codebase
+        - [ ] Architecture docs updated
+
 ### High Priority
 
 - [ ] **[HIGH]** Add skeleton loading components
@@ -337,7 +457,7 @@ Before moving a task to COMPLETED:
 ## 📊 Statistics
 
 ### Current Sprint
-- **TO DO:** 7 tasks (4 HIGH, 2 MED, 1 LOW)
+- **TO DO:** 8 tasks (1 CRITICAL, 4 HIGH, 2 MED, 1 LOW)
 - **BACKLOG:** 5 tasks
 - **COMPLETED:** 18 tasks
 
@@ -346,15 +466,17 @@ Before moving a task to COMPLETED:
 - **Average:** 2.5 tasks/day
 
 ### Next Focus
-1. Skeleton loading components
-2. Quest category filtering
-3. Search functionality
+1. **Backend API Implementation** (NEW - CRITICAL)
+2. Skeleton loading components
+3. Quest category filtering
+4. Search functionality
 
 ---
 
 ## 🔗 Quick Links
 
 - **Project Overview:** `README.md`
+- **API Contract:** `docs/API_CONTRACT.md` (NEW)
 - **Architecture:** `.claude/architecture.md`
 - **Quick Reference:** `.claude/quick-reference.md`
 - **Workflows:** `.claude/workflows.md`
@@ -362,5 +484,5 @@ Before moving a task to COMPLETED:
 
 ---
 
-**Last Updated:** 2025-12-31
+**Last Updated:** 2026-01-03
 **Maintained By:** Human + Claude Code AI 🤖
