@@ -39,31 +39,41 @@ Once your project is ready, you need to gather the following credentials:
 3. Copy the URL (looks like: `https://xxxxxxxx.supabase.co`)
 4. **Save this URL**
 
-### 2.3 Anon Key (NEXT_PUBLIC_SUPABASE_ANON_KEY)
+### 2.3 Publishable Key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 
 1. Still on the **API** settings page
-2. Find the **anon** key (under "Project API keys" > **Legacy** tab)
-   - OR find **Publishable key** (under the new **API Keys** tab, format: `sb_publishable_xxx`)
-3. Click the eye icon to reveal it, then copy it
-4. **Note**: This key is safe to use on the client side when Row Level Security (RLS) is enabled
-5. **Save this key**
+2. Click the **API Keys** tab (not the Legacy tab)
+3. If no publishable key exists, click **Create new API Keys**
+4. Find **Publishable key** (format: `sb_publishable_xxx`)
+5. Click the eye icon to reveal it, then copy it
+6. **Note**: This key is safe to use on the client side when Row Level Security (RLS) is enabled
+7. **Save this key**
 
-### 2.4 Service Role Key (SUPABASE_SERVICE_ROLE_KEY)
+> **Why use the new Publishable Key?** Supabase's new publishable key format (`sb_publishable_xxx`) is the recommended approach for 2025. The legacy `anon` key still works, but the publishable key is the current standard.
+
+### 2.4 Service Role Key (Optional - for server-side only)
+
+**Note**: If you're using Supabase Auth with `@supabase/ssr`, you may NOT need the Service Role Key for authentication. However, keep it for:
+
+- Server-side API routes that need full database access
+- Administrative operations
+- Bypassing RLS when needed
 
 1. Still on the **API** settings page
-2. Find **service_role** key (under "Project API keys" > **Legacy** tab)
-3. Click the eye icon to reveal it, then copy it
-4. **IMPORTANT**: This key bypasses Row Level Security - never expose it on the client side
-5. **Save this key**
+2. Click the **Legacy** tab
+3. Find **service_role** key
+4. Click the eye icon to reveal it, then copy it
+5. **IMPORTANT**: This key bypasses Row Level Security - never expose it on the client side
+6. **Save this key** (you can add it to `.env.local` later if needed)
 
 ## Step 3: Configure Environment Variables
 
-1. Copy the example environment file:
+1. Copy the example environment file to `.env.local`:
    ```bash
-   cp .env.example .env
+   cp .env.example .env.local
    ```
 
-2. Open `.env` in your code editor
+2. Open `.env.local` in your code editor
 
 3. Replace the placeholder values with your actual Supabase credentials:
    ```bash
@@ -73,26 +83,28 @@ Once your project is ready, you need to gather the following credentials:
    # Replace with your actual Project URL from Step 2.2
    NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxx.supabase.co"
 
-   # Replace with your Anon Key (or new Publishable Key)
-   # From: Supabase Dashboard > Project Settings > API > anon key (Legacy tab)
-   # OR: Supabase Dashboard > Project Settings > API > Publishable key (new format)
-   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key-or-publishable-key"
-
-   # Replace with your actual Service Role Key from Step 2.3
-   SUPABASE_SERVICE_ROLE_KEY="your-actual-service-role-key"
+   # Replace with your Publishable Key from Step 2.3
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="your-actual-publishable-key"
 
    # Application URL (keep as is for local development)
    NEXT_PUBLIC_APP_URL="http://localhost:3000"
    ```
 
-4. **IMPORTANT**: Never commit `.env` to git! It's already in `.gitignore`
+4. **IMPORTANT**: Never commit `.env.local` to git! It's already in `.gitignore`
+
+### Why .env.local instead of .env?
+
+Next.js uses `.env.local` for local development secrets because:
+- It has **higher priority** than `.env` (overrides default values)
+- It's the **standard** for local-sensitive credentials
+- It's ignored by test environments
 
 ### Key Types Explained
 
 | Key | Prefix | Exposure | Use Case |
 |-----|--------|----------|----------|
-| **Anon Key** | `NEXT_PUBLIC_` | Public (safe) | Client-side with `@supabase/ssr`, requires RLS enabled |
-| **Service Role Key** | (none) | Private (secret) | Server-side API routes, bypasses RLS |
+| **Publishable Key** | `NEXT_PUBLIC_` | Public (safe) | Client-side with `@supabase/ssr`, requires RLS enabled |
+| **Service Role Key** | (none) | Private (secret) | Server-side API routes, bypasses RLS (not needed for @supabase/ssr auth) |
 
 ### ⚠️ JWT_SECRET Removed
 
